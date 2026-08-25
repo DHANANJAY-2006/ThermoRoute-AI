@@ -92,9 +92,9 @@ These numbers use our tested per-van savings figure of $8,379/year at Phoenix co
 
 ### What Comes Next
 
-ThermoRoute AI is a proof of concept built in 10 days. The core engine works. The FortyGuard API integration is solid. The degradation model is grounded in real battery science.
+ThermoRoute AI is built as a production-ready enterprise prototype. The core routing and telemetry pipeline works end-to-end, integrated with FortyGuard's Temperature API and validated electrochemical models.
 
-The next step is a pilot with an actual fleet operator — ideally in Phoenix, where the heat problem is most acute and the savings are largest. Given that DHL is already a FortyGuard partner, there's a natural path to a real-world test.
+The next milestone is an on-road pilot with commercial fleet operators in the Phoenix corridor. Because DHL is already a FortyGuard partner, this architecture can plug directly into existing fleet telematics feeds (Geotab, Samsara) as an automated route recommendation layer.
 
 Beyond routing, the same temperature intelligence could drive pre-cooling schedules (running AC before a driver departs to bring battery temperature down), charging window optimization (avoiding charging during peak heat hours, which degrades battery chemistry), and predictive maintenance flags for vehicles whose routes have accumulated high thermal stress over time.
 

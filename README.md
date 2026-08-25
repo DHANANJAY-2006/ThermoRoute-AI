@@ -14,12 +14,12 @@
 
 Commercial EV delivery fleets (Amazon Logistics, DHL Express, FedEx, UPS) route hundreds of thousands of medium- and heavy-duty electric vans using conventional routing engines optimized strictly for **distance** and **transit time**.
 
-These engines ignore roadway microclimates. In major logistics hubs such as Phoenix, AZ, surface-level ambient air temperatures reach **112°F (44.4°C)**. Under these conditions, the electrochemical degradation of commercial lithium-ion battery packs accelerates by **3.85x** relative to nominal baseline operating conditions (Arrhenius kinetics).
+These engines ignore roadway microclimates. In major logistics hubs such as Phoenix, AZ, surface-level ambient air temperatures reach **111.4°F (44.1°C)**. Under these conditions with direct solar radiation, the electrochemical degradation of commercial lithium-ion battery packs accelerates by **4.20x** relative to nominal baseline operating conditions (Arrhenius kinetics with $E_a = 52.5\text{ kJ/mol}$).
 
-Operating a commercial EV delivery vehicle through unmanaged high-stress urban heat corridors imposes up to **$13,471 per vehicle per year** in premature battery capacity loss. Redirecting that same vehicle to a thermally optimal corridor through ThermoRoute AI reduces annual degradation cost to **$5,092 per year**.
+Operating a commercial EV delivery vehicle through unmanaged high-stress urban heat corridors imposes up to **$14,689 per vehicle per year** in premature battery capacity loss. Redirecting that same vehicle to a thermally optimal corridor through ThermoRoute AI reduces annual degradation cost to **$7,836 per year**.
 
-**Net Verified Impact:** **$8,379 per vehicle per year** in avoided battery depreciation.  
-**Fleet Scale (500 Active Units):** **$4.19M in annual CapEx savings**, delivering a **5-year net benefit of $20.08M**.
+**Net Verified Impact:** **$6,853 per vehicle per year** in avoided battery depreciation.  
+**Fleet Scale (500 Active Units):** **$3.43M in annual CapEx savings**, delivering a **5-year net benefit of $16.26M**.
 
 ---
 
@@ -39,16 +39,20 @@ ThermoRoute AI correlates 2-meter street-level temperature telemetry from the **
 
 Cell degradation rates are computed using the **Arrhenius electrochemical kinetics model**, the global standard employed by automotive OEMs to rate battery longevity:
 
-$$\text{Degradation Factor} = 2^{\frac{T_{\text{effective}} - 77^\circ\text{F}}{18^\circ\text{F}}}$$
+$$\frac{k(T)}{k(T_0)} = \exp\left( \frac{E_a}{R} \left( \frac{1}{T_0} - \frac{1}{T_{\text{effective}}} \right) \right)$$
 
-Where $T_{\text{effective}}$ accounts for ambient roadway temperature, direct solar radiation load (from `/v1/env_params`), and canopy shading offsets (from `/v1/satellite`).
+Where:
+- $E_a = 52.5\text{ kJ/mol}$ (Activation energy for commercial Li-ion SEI degradation)
+- $R = 8.314\text{ J/(mol}\cdot\text{K)}$ (Universal gas constant)
+- $T_0 = 298.15\text{ K}$ ($25^\circ\text{C} / 77.0^\circ\text{F}$ baseline)
+- $T_{\text{effective}}$ accounts for ambient roadway temperature, direct solar radiation load (from `/v1/env_params`), and canopy shading offsets (from `/v1/satellite`).
 
-| Roadway Temperature | Degradation Multiplier | Nominal Battery Life (Rivian EDV) |
+| Roadway Conditions | Degradation Multiplier | Nominal Battery Life (Rivian EDV) |
 | :--- | :--- | :--- |
-| **77°F (25°C)** | **1.00x** (Nominal) | **8.0 Years** |
-| **95°F (35°C)** | **2.00x** | **4.0 Years** |
-| **104°F (40°C)** | **2.82x** | **2.8 Years** |
-| **112°F (44.4°C)** | **3.85x** | **2.1 Years** |
+| **77.0°F (25°C)** | **1.00x** (Nominal Baseline) | **8.0 Years** |
+| **95.0°F (35°C)** | **1.99x** | **4.0 Years** |
+| **105.0°F (40.5°C)** | **2.86x** | **2.8 Years** |
+| **111.4°F + Solar (Phoenix Urban Core)** | **4.20x** | **1.9 Years** |
 
 FortyGuard provides street-level measurements at **2 meters elevation**, matching the chassis mount height of commercial EV battery packs.
 

@@ -155,22 +155,22 @@ with c1:
     )
 with c2:
     st.metric(
-        label="Electrochemical Aging Rate",
-        value="3.85x",
-        delta="+285% over nominal baseline",
+        label="Peak Degradation Rate",
+        value="4.20x",
+        delta="NMC/LFP SEI Growth",
         delta_color="inverse"
     )
 with c3:
     st.metric(
         label="Unit CapEx Savings",
-        value="$8,379",
+        value="$6,853",
         delta="Highway vs Surface Grid",
         delta_color="normal"
     )
 with c4:
     st.metric(
         label="5-Year Fleet Value (500 Vans)",
-        value="$20.08M",
+        value="$16.26M",
         delta="Net Financial Benefit",
         delta_color="normal"
     )
@@ -189,10 +189,10 @@ with col_left:
         Neither parameter reflects the thermodynamic cost of high-stress urban heat corridors on heavy commercial lithium-ion packs.
       </p>
       <p>
-        At 111.4°F ambient surface temperatures in major logistics hubs such as Phoenix, accelerated chemical degradation (Arrhenius kinetics) increases battery capacity loss by nearly <strong>4x</strong> compared to baseline operating conditions.
+        At 111.4°F ambient surface temperatures in major logistics hubs such as Phoenix, accelerated chemical degradation (Arrhenius kinetics) increases battery capacity loss by <strong>4.20x</strong> compared to baseline operating conditions.
       </p>
       <p style="margin-bottom:0;">
-        Operating an electric delivery vehicle through unshaded downtown corridors imposes up to <strong>$13,471 per vehicle per year</strong> in premature battery depreciation.
+        Operating an electric delivery vehicle through unshaded downtown corridors imposes up to <strong>$14,689 per vehicle per year</strong> in premature battery depreciation.
       </p>
     </div>
     """, unsafe_allow_html=True)
@@ -208,7 +208,7 @@ with col_right:
         By correlating roadway microclimate temperatures with the Arrhenius electrochemical degradation model, ThermoRoute AI autonomously evaluates candidate transit corridors and redirects fleets to thermally optimal routes.
       </p>
       <p style="margin-bottom:0;">
-        <strong>Result:</strong> An average of <strong>$8,379 per vehicle per year</strong> in preserved asset life with zero loss in package delivery volume.
+        <strong>Result:</strong> An average of <strong>$6,853 per vehicle per year</strong> in preserved asset life with zero loss in package delivery volume.
       </p>
     </div>
     """, unsafe_allow_html=True)
@@ -216,18 +216,18 @@ with col_right:
 # ── Scientific Foundation ─────────────────────────────────────────────────────
 st.markdown("### Electrochemical Degradation Model")
 st.markdown("""
-Lithium-ion cell aging follows the **Arrhenius degradation relationship**, where elevated operating temperature accelerates solid electrolyte interphase (SEI) layer growth and active lithium loss:
+Lithium-ion cell aging follows the **Arrhenius degradation relationship**, where elevated operating temperature accelerates solid electrolyte interphase (SEI) layer growth ($E_a = 52.5\\text{ kJ/mol}$):
 """)
 
 s1, s2, s3, s4 = st.columns(4)
 with s1:
     st.metric(label="Nominal Baseline (77°F)", value="1.00x", delta="Rated Life: 8.0 Years")
 with s2:
-    st.metric(label="Elevated Threshold (95°F)", value="2.00x", delta="Rated Life: 4.0 Years", delta_color="inverse")
+    st.metric(label="Elevated Threshold (95°F)", value="1.99x", delta="Rated Life: 4.0 Years", delta_color="inverse")
 with s3:
-    st.metric(label="High Heat (104°F)", value="2.82x", delta="Rated Life: 2.8 Years", delta_color="inverse")
+    st.metric(label="High Heat (105°F)", value="2.86x", delta="Rated Life: 2.8 Years", delta_color="inverse")
 with s4:
-    st.metric(label="Critical Ambient (112°F)", value="3.85x", delta="Rated Life: 2.1 Years", delta_color="inverse")
+    st.metric(label="Critical Ambient (111.4°F + Solar)", value="4.20x", delta="Rated Life: 1.9 Years", delta_color="inverse")
 
 st.markdown("---")
 

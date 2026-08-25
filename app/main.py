@@ -98,6 +98,75 @@ st.markdown("""
   .delta-inverse { color: #f87171; }
   .delta-highlight { color: #38bdf8; font-weight: 600; }
 
+  /* API Endpoint Grid */
+  .api-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 14px 0 24px 0;
+  }
+  .api-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  .api-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+  }
+  .http-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+  }
+  .http-post {
+      background: rgba(14, 165, 233, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+  }
+  .http-get {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .api-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      white-space: nowrap;
+  }
+  .api-desc {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      flex-grow: 1;
+  }
+  .api-layer {
+      font-size: 0.72rem;
+      color: #64748b;
+      border-top: 1px solid #1e293b;
+      padding-top: 8px;
+  }
+  .api-layer code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #38bdf8;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 1px 4px;
+      border-radius: 3px;
+  }
+
   /* Headers */
   h1 {
       font-weight: 800 !important;
@@ -268,53 +337,67 @@ with s4:
 
 st.markdown("---")
 
-# ── Endpoint Integration Grid ─────────────────────────────────────────────────
+# ── FortyGuard API Architecture ───────────────────────────────────────────────
 st.markdown("### FortyGuard API Architecture & Endpoint Implementation")
-st.caption("Full lifecycle integration across all 6 production endpoints:")
+st.caption("Full production integration across all 6 FortyGuard Temperature API® endpoints:")
 
-ep1, ep2, ep3, ep4, ep5, ep6 = st.columns(6)
-with ep1:
-    st.markdown("""
-    <div class="panel-card" style="padding:14px; text-align:center;">
-      <span class="system-pill">/v1/heatmap</span>
-      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Exceedance & snapshot corridor thermal maps</p>
+st.markdown("""
+<div class="api-grid">
+  <div class="api-card">
+    <div class="api-card-header">
+      <span class="http-badge http-post">POST</span>
+      <span class="api-path">/v1/heatmap</span>
     </div>
-    """, unsafe_allow_html=True)
-with ep2:
-    st.markdown("""
-    <div class="panel-card" style="padding:14px; text-align:center;">
-      <span class="system-pill">/v1/satellite</span>
-      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Canopy cover & shade radiation shielding</p>
+    <div class="api-desc">Waypoint-level thermal corridor telemetry and 2-meter air temperature mapping.</div>
+    <div class="api-layer">Layers: <code>exceedance</code> · <code>snapshot</code></div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-card-header">
+      <span class="http-badge http-post">POST</span>
+      <span class="api-path">/v1/satellite</span>
     </div>
-    """, unsafe_allow_html=True)
-with ep3:
-    st.markdown("""
-    <div class="panel-card" style="padding:14px; text-align:center;">
-      <span class="system-pill">/v1/streetview</span>
-      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Ground-level roadway segmentation</p>
+    <div class="api-desc">Canopy vegetation coverage, NDVI metrics, and solar radiation shielding factors.</div>
+    <div class="api-layer">Source: High-resolution multispectral imagery</div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-card-header">
+      <span class="http-badge http-post">POST</span>
+      <span class="api-path">/v1/streetview</span>
     </div>
-    """, unsafe_allow_html=True)
-with ep4:
-    st.markdown("""
-    <div class="panel-card" style="padding:14px; text-align:center;">
-      <span class="system-pill">/v1/heat_intelligence</span>
-      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Multi-dimensional risk scoring & PDF reports</p>
+    <div class="api-desc">Street-level pavement thermography and microclimate ground segment analysis.</div>
+    <div class="api-layer">Layer: <code>snapshot</code> @ 2m elevation</div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-card-header">
+      <span class="http-badge http-post">POST</span>
+      <span class="api-path">/v1/heat_intelligence</span>
     </div>
-    """, unsafe_allow_html=True)
-with ep5:
-    st.markdown("""
-    <div class="panel-card" style="padding:14px; text-align:center;">
-      <span class="system-pill">/v1/env_params</span>
-      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Solar irradiance & thermal persistence</p>
+    <div class="api-desc">Multi-dimensional operational risk synthesis and autonomous fleet advisory generation.</div>
+    <div class="api-layer">Outputs: Executive risk brief & audit reports</div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-card-header">
+      <span class="http-badge http-post">POST</span>
+      <span class="api-path">/v1/env_params</span>
     </div>
-    """, unsafe_allow_html=True)
-with ep6:
-    st.markdown("""
-    <div class="panel-card" style="padding:14px; text-align:center;">
-      <span class="system-pill">/v1/status</span>
-      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Unified async task polling lifecycle</p>
+    <div class="api-desc">Direct solar irradiance (W/m²), heat index (°F), AQI, and continuous thermal persistence.</div>
+    <div class="api-layer">Layer: <code>persistence</code> (hours duration)</div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-card-header">
+      <span class="http-badge http-get">GET</span>
+      <span class="api-path">/v1/status/{task_id}</span>
     </div>
-    """, unsafe_allow_html=True)
+    <div class="api-desc">Unified asynchronous task polling and lifecycle status verification engine.</div>
+    <div class="api-layer">Protocol: Non-blocking async task polling</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #1e293b;">

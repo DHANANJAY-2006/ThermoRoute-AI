@@ -47,6 +47,16 @@ st.markdown("""
       border-right: 1px solid #172439;
   }
 
+  /* Sidebar brand card */
+  .sidebar-brand-box {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(6, 11, 20, 0.9) 100%);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
   /* Metric cards */
   [data-testid="metric-container"] {
       background: rgba(15, 23, 42, 0.65);
@@ -69,15 +79,13 @@ st.markdown("""
       color: #ffffff;
   }
 
-  /* Highlight the Hero Value Metric (Column 4 - $16.26M) */
-  [data-testid="column"]:nth-of-type(4) [data-testid="metric-container"] {
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
-      border: 1px solid rgba(56, 189, 248, 0.45) !important;
-      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.18) !important;
-  }
-  [data-testid="column"]:nth-of-type(4) [data-testid="metric-container"] [data-testid="stMetricValue"] {
-      color: #38bdf8 !important;
-      text-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+  /* Highlight card */
+  .highlight-metric-card {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.16) 0%, rgba(15, 23, 42, 0.85) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      border-radius: 8px;
+      padding: 15px 20px;
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
   }
 
   /* Headers */
@@ -136,9 +144,22 @@ st.markdown("""
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown('<div class="status-badge">THERMOROUTE AI // v1.0</div>', unsafe_allow_html=True)
-    st.caption("FortyGuard Global AI Hackathon '26")
-    st.caption("Track 03: Industrial & Enterprise")
+    st.markdown("""
+    <div class="sidebar-brand-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span style="font-weight:800; font-size:1.05rem; letter-spacing:0.03em; color:#ffffff;">THERMOROUTE<span style="color:#38bdf8;">.AI</span></span>
+        <span style="font-family:'JetBrains Mono', monospace; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:3px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">v1.0 PRO</span>
+      </div>
+      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:10px;">Hyperlocal Fleet Thermal Intelligence</div>
+      <div style="display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:#4ade80; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); padding:4px 8px; border-radius:4px; margin-bottom:8px;">
+        <span style="width:6px; height:6px; border-radius:50%; background:#4ade80; box-shadow:0 0 6px #4ade80; display:inline-block;"></span>
+        <span>FORTYGUARD API // ACTIVE</span>
+      </div>
+      <div style="font-family:'JetBrains Mono', monospace; font-size:0.66rem; color:#64748b; border-top:1px solid #1e293b; padding-top:6px;">
+        TRACK 03: INDUSTRIAL & ENTERPRISE
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ── Hero Section ──────────────────────────────────────────────────────────────
 st.markdown("""
@@ -183,12 +204,13 @@ with c3:
         delta_color="normal"
     )
 with c4:
-    st.metric(
-        label="5-Year Fleet Value (500 Vans)",
-        value="$16.26M",
-        delta="Net Financial Benefit",
-        delta_color="normal"
-    )
+    st.markdown("""
+    <div class="highlight-metric-card">
+      <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#38bdf8; font-weight:700;">5-Year Fleet Value (500 Vans)</div>
+      <div style="font-family:'JetBrains Mono', monospace; font-size:1.85rem; font-weight:800; color:#ffffff; margin:2px 0;">$16.26M</div>
+      <div style="font-size:0.8rem; color:#4ade80; font-weight:600;">▲ Net Financial Benefit</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 

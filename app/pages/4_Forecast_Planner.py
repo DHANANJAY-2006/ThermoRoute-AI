@@ -61,8 +61,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.caption("FortyGuard Global AI Hackathon '26")
-    st.caption("Track 03: Industrial & Enterprise")
+    st.markdown("""
+    <div class="sidebar-brand-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span style="font-weight:800; font-size:1.05rem; letter-spacing:0.03em; color:#ffffff;">THERMOROUTE<span style="color:#38bdf8;">.AI</span></span>
+        <span style="font-family:'JetBrains Mono', monospace; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:3px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">v1.0 PRO</span>
+      </div>
+      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:10px;">Hyperlocal Fleet Thermal Intelligence</div>
+      <div style="display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:#4ade80; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); padding:4px 8px; border-radius:4px; margin-bottom:8px;">
+        <span style="width:6px; height:6px; border-radius:50%; background:#4ade80; box-shadow:0 0 6px #4ade80; display:inline-block;"></span>
+        <span>FORTYGUARD API // ACTIVE</span>
+      </div>
+      <div style="font-family:'JetBrains Mono', monospace; font-size:0.66rem; color:#64748b; border-top:1px solid #1e293b; padding-top:6px;">
+        TRACK 03: INDUSTRIAL & ENTERPRISE
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 client = FortyGuardClient()
 bm = BatteryDegradationModel()

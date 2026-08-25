@@ -81,15 +81,15 @@ with i3:
 
 i4, i5, i6 = st.columns(3)
 with i4:
-    fleet_size = st.number_input("Operational Fleet Size (Units)", 1, 250000, 500, step=25)
+    fleet_size = int(st.number_input("Operational Fleet Size (Units)", min_value=1, max_value=250000, value=500, step=1))
 with i5:
-    solar = st.slider("Mean Solar Irradiance (W/m²)", 200, 1200, 900, step=50)
+    solar = int(st.slider("Mean Solar Irradiance (W/m²)", min_value=200, max_value=1200, value=900, step=50))
 with i6:
-    saas_fee = st.number_input("Software Platform Fee ($/Unit/Month)", 1.0, 250.0, 29.0, step=1.0)
+    saas_fee = float(st.number_input("Software Platform Fee ($/Unit/Month)", min_value=1.0, max_value=250.0, value=29.0, step=1.0))
 
-# Calculations
-hot_data = bm.annual_degradation_cost(hot_temp, vehicle_key, solar_irradiance_wm2=solar, shade_pct=5.0)
-cool_data = bm.annual_degradation_cost(cool_temp, vehicle_key, solar_irradiance_wm2=solar*0.75, shade_pct=30.0)
+# Safe calculations
+hot_data = bm.annual_degradation_cost(avg_temp_f=float(hot_temp), vehicle_key=vehicle_key, solar_irradiance_wm2=float(solar), shade_pct=5.0)
+cool_data = bm.annual_degradation_cost(avg_temp_f=float(cool_temp), vehicle_key=vehicle_key, solar_irradiance_wm2=float(solar*0.75), shade_pct=30.0)
 savings_per_van = max(0.0, hot_data["heat_annual_cost_usd"] - cool_data["heat_annual_cost_usd"])
 roi = fleet_roi_summary(savings_per_van, fleet_size, saas_fee)
 projection = yearly_projection(savings_per_van, fleet_size)
@@ -116,7 +116,7 @@ c_plot1, c_plot2 = st.columns(2)
 with c_plot1:
     st.markdown("#### Arrhenius Kinetics Degradation Curve")
     temps_range = list(range(60, 136, 2))
-    deg_factors = [bm.degradation_factor(t, solar) for t in temps_range]
+    deg_factors = [bm.degradation_factor(float(t), float(solar)) for t in temps_range]
     
     fig_arr = go.Figure()
     fig_arr.add_trace(go.Scatter(

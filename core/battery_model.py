@@ -39,16 +39,20 @@ class BatteryDegradationModel:
     Computes cell degradation multipliers and annualized replacement depreciation.
     """
 
-    def degradation_factor(self, temp_f: float,
-                            solar_irradiance_wm2: float = 0,
-                            shade_pct: float = 0,
-                            **kwargs) -> float:
+    def degradation_factor(self, temp_f: float = 77.0,
+                            solar_irradiance_wm2: float = 0.0,
+                            shade_pct: float = 0.0,
+                            *args, **kwargs) -> float:
         """
         Computes the Arrhenius reaction rate multiplier k(T)/k(T0).
         """
-        solar_add = (solar_irradiance_wm2 / 1000.0) * 5.5
-        shade_sub = (shade_pct / 100.0) * 8.5
-        effective_temp_f = temp_f + solar_add - shade_sub
+        # Support flexible kwargs
+        solar = kwargs.get("solar", kwargs.get("solar_wm2", solar_irradiance_wm2))
+        shade = kwargs.get("shade", kwargs.get("shade_pct", shade_pct))
+
+        solar_add = (float(solar) / 1000.0) * 5.5
+        shade_sub = (float(shade) / 100.0) * 8.5
+        effective_temp_f = float(temp_f) + solar_add - shade_sub
 
         t_eff_k = (effective_temp_f - 32.0) * (5.0 / 9.0) + 273.15
         if t_eff_k <= T0_KELVIN:
@@ -60,24 +64,28 @@ class BatteryDegradationModel:
         )
         return round(multiplier, 3)
 
-    def annual_degradation_cost(self, avg_temp_f: float,
-                                 vehicle_key: str,
-                                 solar_irradiance_wm2: float = 0,
-                                 shade_pct: float = 0,
+    def annual_degradation_cost(self, avg_temp_f: float = 100.0,
+                                 vehicle_key: str = "Rivian_EDV_500",
+                                 solar_irradiance_wm2: float = 0.0,
+                                 shade_pct: float = 0.0,
                                  daily_drive_hours: float = 8.0,
-                                 **kwargs) -> dict:
+                                 *args, **kwargs) -> dict:
         """
         Computes annualized battery asset depreciation under thermal stress.
         """
+        # Support flexible kwargs
+        solar = kwargs.get("solar", kwargs.get("solar_wm2", solar_irradiance_wm2))
+        shade = kwargs.get("shade", kwargs.get("shade_pct", shade_pct))
+
         specs = EV_SPECS.get(vehicle_key, list(EV_SPECS.values())[0])
         replacement_cost = specs["battery_replacement_cost_usd"]
         lifespan_years = specs["nominal_cycle_life_years"]
 
-        solar_add = (solar_irradiance_wm2 / 1000.0) * 5.5
-        shade_sub = (shade_pct / 100.0) * 8.5
-        effective_temp_f = avg_temp_f + solar_add - shade_sub
+        solar_add = (float(solar) / 1000.0) * 5.5
+        shade_sub = (float(shade) / 100.0) * 8.5
+        effective_temp_f = float(avg_temp_f) + solar_add - shade_sub
 
-        factor = self.degradation_factor(avg_temp_f, solar_irradiance_wm2, shade_pct)
+        factor = self.degradation_factor(avg_temp_f, solar, shade)
         baseline_annual = replacement_cost / lifespan_years
 
         effective_lifespan = max(0.5, lifespan_years / factor)
@@ -86,7 +94,7 @@ class BatteryDegradationModel:
 
         return {
             "vehicle": specs["name"],
-            "avg_temp_f": round(avg_temp_f, 1),
+            "avg_temp_f": round(float(avg_temp_f), 1),
             "effective_temp_f": round(effective_temp_f, 1),
             "degradation_factor": factor,
             "baseline_factor": 1.000,
@@ -97,13 +105,14 @@ class BatteryDegradationModel:
             "baseline_annual_cost_usd": round(baseline_annual, 2),
             "heat_annual_cost_usd": round(heat_annual, 2),
             "extra_annual_cost_usd": round(extra_annual, 2),
-            "solar_irradiance_wm2": solar_irradiance_wm2,
+            "solar_irradiance_wm2": float(solar),
             "solar_temp_addition_f": round(solar_add, 1),
             "shade_temp_reduction_f": round(shade_sub, 1)
         }
 
     def compare_routes(self, routes: list, vehicle_key: str,
-                       solar_irradiance_wm2: float = 0) -> dict:
+                       solar_irradiance_wm2: float = 0,
+                       *args, **kwargs) -> dict:
         """
         Evaluates candidate corridors and computes comparative savings.
         """

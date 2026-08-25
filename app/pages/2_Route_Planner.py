@@ -91,7 +91,7 @@ with c2:
         format_func=lambda k: f"{ev_specs[k]['name']} — {ev_specs[k]['operator']}"
     )
 with c3:
-    fleet_size = st.number_input("Fleet Operational Scale (Units)", min_value=1, max_value=250000, value=500, step=25)
+    fleet_size = int(st.number_input("Fleet Operational Scale (Units)", min_value=1, max_value=250000, value=500, step=1))
 
 # Calculate scores safely
 with st.spinner("Executing spatial corridor thermal analysis..."):

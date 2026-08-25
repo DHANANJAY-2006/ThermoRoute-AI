@@ -102,7 +102,7 @@ with c2:
         format_func=lambda k: f"{ev_specs[k]['name']} — {ev_specs[k]['operator']}"
     )
 with c3:
-    fleet_size = st.number_input("Operating Fleet Units", min_value=1, max_value=250000, value=500, step=25)
+    fleet_size = int(st.number_input("Operating Fleet Units", min_value=1, max_value=250000, value=500, step=1))
 
 if st.button("Generate Executive Brief", type="primary", use_container_width=True):
     with st.spinner("Compiling multi-dimensional thermal intelligence brief..."):

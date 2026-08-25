@@ -76,11 +76,11 @@ with c1:
         format_func=lambda k: f"{ev_specs[k]['name']} — {ev_specs[k]['operator']}"
     )
 with c2:
-    fleet_size = st.number_input("Operational Fleet Size per Territory", min_value=1, max_value=50000, value=500, step=25)
+    fleet_size = int(st.number_input("Operational Fleet Size per Territory", min_value=1, max_value=50000, value=500, step=1))
 
 # Fetch snapshot
 with st.spinner("Querying FortyGuard Temperature API telemetry across US logistics corridors..."):
-    snapshots = multi_city_snapshot(client)
+    snapshots = multi_city_snapshot(client=client)
 
 # Top KPI strip
 t1, t2, t3, t4 = st.columns(4)

@@ -41,7 +41,8 @@ class BatteryDegradationModel:
 
     def degradation_factor(self, temp_f: float,
                             solar_irradiance_wm2: float = 0,
-                            shade_pct: float = 0) -> float:
+                            shade_pct: float = 0,
+                            **kwargs) -> float:
         """
         Computes the Arrhenius reaction rate multiplier k(T)/k(T0).
         """
@@ -63,7 +64,8 @@ class BatteryDegradationModel:
                                  vehicle_key: str,
                                  solar_irradiance_wm2: float = 0,
                                  shade_pct: float = 0,
-                                 daily_drive_hours: float = 8.0) -> dict:
+                                 daily_drive_hours: float = 8.0,
+                                 **kwargs) -> dict:
         """
         Computes annualized battery asset depreciation under thermal stress.
         """

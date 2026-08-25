@@ -29,6 +29,13 @@ st.markdown("""
   #MainMenu { visibility: hidden; }
   footer { visibility: hidden; }
 
+  /* Capitalize First Letter of Sidebar Page Names */
+  [data-testid="stSidebarNav"] span {
+      text-transform: capitalize !important;
+      font-weight: 500 !important;
+      font-size: 0.95rem !important;
+  }
+
   /* Deep obsidian/navy background */
   [data-testid="stAppViewContainer"] {
       background: radial-gradient(circle at 50% 0%, #0c1729 0%, #050a14 70%, #03060c 100%);
@@ -119,9 +126,6 @@ st.markdown("""
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown('<div class="status-badge">THERMOROUTE AI // v1.0</div>', unsafe_allow_html=True)
-    st.markdown("### Fleet Telemetry")
-    st.caption("FortyGuard Temperature API® Enterprise Suite")
-    st.markdown("---")
     st.caption("FortyGuard Global AI Hackathon '26")
     st.caption("Track 03: Industrial & Enterprise")
 

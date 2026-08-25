@@ -1,5 +1,5 @@
 """
-Page 6 — Financial & ROI Analysis
+Page 3 — Financial Modeling & CapEx ROI Analysis
 Financial modeling of thermal degradation mitigation.
 Quantifies capital expenditure avoidance, payback horizons, and multi-year projections.
 """
@@ -26,6 +26,11 @@ st.markdown("""
   header[data-testid="stHeader"] { background: rgba(4, 9, 28, 0.8) !important; backdrop-filter: blur(8px); }
   #MainMenu { visibility: hidden; }
   footer { visibility: hidden; }
+  [data-testid="stSidebarNav"] span {
+      text-transform: capitalize !important;
+      font-weight: 500 !important;
+      font-size: 0.95rem !important;
+  }
   [data-testid="stAppViewContainer"] {
       background: radial-gradient(circle at 50% 0%, #0c1729 0%, #050a14 70%, #03060c 100%);
       color: #e2e8f0;
@@ -83,8 +88,8 @@ with i6:
     saas_fee = st.number_input("Software Platform Fee ($/Unit/Month)", 1.0, 250.0, 29.0, step=1.0)
 
 # Calculations
-hot_data = bm.annual_degradation_cost(hot_temp, vehicle_key, solar, shade_pct=5.0)
-cool_data = bm.annual_degradation_cost(cool_temp, vehicle_key, solar=solar*0.75, shade_pct=30.0)
+hot_data = bm.annual_degradation_cost(hot_temp, vehicle_key, solar_irradiance_wm2=solar, shade_pct=5.0)
+cool_data = bm.annual_degradation_cost(cool_temp, vehicle_key, solar_irradiance_wm2=solar*0.75, shade_pct=30.0)
 savings_per_van = max(0.0, hot_data["heat_annual_cost_usd"] - cool_data["heat_annual_cost_usd"])
 roi = fleet_roi_summary(savings_per_van, fleet_size, saas_fee)
 projection = yearly_projection(savings_per_van, fleet_size)

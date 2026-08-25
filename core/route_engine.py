@@ -98,10 +98,12 @@ def get_forecast_schedule(city_key: str, client: FortyGuardClient) -> list:
     return client.get_forecast(location, hours_ahead=12)
 
 
-def multi_city_snapshot(vehicle_key: str, client: FortyGuardClient) -> list:
+def multi_city_snapshot(client: FortyGuardClient = None, vehicle_key: str = "Rivian_EDV_500") -> list:
     """
     Snapshot of thermal risk across all supported US metropolitan logistics hubs.
     """
+    if client is None:
+        client = FortyGuardClient()
     results = []
     for city_key, city in CITY_DATA.items():
         location = f"{city['center'][0]},{city['center'][1]}"

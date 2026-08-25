@@ -28,6 +28,11 @@ st.markdown("""
   header[data-testid="stHeader"] { background: rgba(4, 9, 28, 0.8) !important; backdrop-filter: blur(8px); }
   #MainMenu { visibility: hidden; }
   footer { visibility: hidden; }
+  [data-testid="stSidebarNav"] span {
+      text-transform: capitalize !important;
+      font-weight: 500 !important;
+      font-size: 0.95rem !important;
+  }
   [data-testid="stAppViewContainer"] {
       background: radial-gradient(circle at 50% 0%, #0c1729 0%, #050a14 70%, #03060c 100%);
       color: #e2e8f0;

@@ -69,6 +69,17 @@ st.markdown("""
       color: #ffffff;
   }
 
+  /* Highlight the Hero Value Metric (Column 4 - $16.26M) */
+  [data-testid="column"]:nth-of-type(4) [data-testid="metric-container"] {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.45) !important;
+      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.18) !important;
+  }
+  [data-testid="column"]:nth-of-type(4) [data-testid="metric-container"] [data-testid="stMetricValue"] {
+      color: #38bdf8 !important;
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+  }
+
   /* Headers */
   h1 {
       font-weight: 800 !important;

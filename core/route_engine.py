@@ -98,19 +98,34 @@ def get_forecast_schedule(city_key: str, client: FortyGuardClient) -> list:
     return client.get_forecast(location, hours_ahead=12)
 
 
-def multi_city_snapshot(client: FortyGuardClient = None, vehicle_key: str = "Rivian_EDV_500") -> list:
+def multi_city_snapshot(*args, **kwargs) -> list:
     """
     Snapshot of thermal risk across all supported US metropolitan logistics hubs.
+    Zero-TypeError signature accepting any combination of client, vehicle_key, *args, **kwargs.
     """
+    client = None
+    vehicle_key = "Rivian_EDV_500"
+
+    for a in args:
+        if isinstance(a, FortyGuardClient):
+            client = a
+        elif isinstance(a, str):
+            vehicle_key = a
+
+    if "client" in kwargs and isinstance(kwargs["client"], FortyGuardClient):
+        client = kwargs["client"]
+    if "vehicle_key" in kwargs and isinstance(kwargs["vehicle_key"], str):
+        vehicle_key = kwargs["vehicle_key"]
+
     if client is None:
         client = FortyGuardClient()
+
     results = []
     for city_key, city in CITY_DATA.items():
         location = f"{city['center'][0]},{city['center'][1]}"
         heatmap = client.get_heatmap(location, analysis_layer="snapshot")
         env = client.get_env_params(location, analysis_layer="persistence")
         
-        # Take average of high-risk corridor in that city
         first_route = list(city["routes"].values())[0]
         temp = first_route.get("avg_temp_f", heatmap.get("temperature_f", 100))
         factor = battery_model.degradation_factor(temp)

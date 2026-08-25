@@ -39,20 +39,29 @@ class BatteryDegradationModel:
     Computes cell degradation multipliers and annualized replacement depreciation.
     """
 
-    def degradation_factor(self, temp_f: float = 77.0,
-                            solar_irradiance_wm2: float = 0.0,
-                            shade_pct: float = 0.0,
-                            *args, **kwargs) -> float:
+    def degradation_factor(self, *args, **kwargs) -> float:
         """
         Computes the Arrhenius reaction rate multiplier k(T)/k(T0).
+        Zero-TypeError signature with universal *args and **kwargs parsing.
         """
-        # Support flexible kwargs
-        solar = kwargs.get("solar", kwargs.get("solar_wm2", solar_irradiance_wm2))
-        shade = kwargs.get("shade", kwargs.get("shade_pct", shade_pct))
+        temp_f = 77.0
+        solar_irradiance_wm2 = 0.0
+        shade_pct = 0.0
 
-        solar_add = (float(solar) / 1000.0) * 5.5
-        shade_sub = (float(shade) / 100.0) * 8.5
-        effective_temp_f = float(temp_f) + solar_add - shade_sub
+        if len(args) >= 1:
+            temp_f = args[0]
+        if len(args) >= 2:
+            solar_irradiance_wm2 = args[1]
+        if len(args) >= 3:
+            shade_pct = args[2]
+
+        temp_f = float(kwargs.get("temp_f", kwargs.get("avg_temp_f", temp_f)))
+        solar = float(kwargs.get("solar_irradiance_wm2", kwargs.get("solar", kwargs.get("solar_wm2", solar_irradiance_wm2))))
+        shade = float(kwargs.get("shade_pct", kwargs.get("shade", shade_pct)))
+
+        solar_add = (solar / 1000.0) * 5.5
+        shade_sub = (shade / 100.0) * 8.5
+        effective_temp_f = temp_f + solar_add - shade_sub
 
         t_eff_k = (effective_temp_f - 32.0) * (5.0 / 9.0) + 273.15
         if t_eff_k <= T0_KELVIN:
@@ -64,26 +73,40 @@ class BatteryDegradationModel:
         )
         return round(multiplier, 3)
 
-    def annual_degradation_cost(self, avg_temp_f: float = 100.0,
-                                 vehicle_key: str = "Rivian_EDV_500",
-                                 solar_irradiance_wm2: float = 0.0,
-                                 shade_pct: float = 0.0,
-                                 daily_drive_hours: float = 8.0,
-                                 *args, **kwargs) -> dict:
+    def annual_degradation_cost(self, *args, **kwargs) -> dict:
         """
         Computes annualized battery asset depreciation under thermal stress.
+        Zero-TypeError signature with universal *args and **kwargs parsing.
         """
-        # Support flexible kwargs
-        solar = kwargs.get("solar", kwargs.get("solar_wm2", solar_irradiance_wm2))
-        shade = kwargs.get("shade", kwargs.get("shade_pct", shade_pct))
+        avg_temp_f = 100.0
+        vehicle_key = "Rivian_EDV_500"
+        solar_irradiance_wm2 = 0.0
+        shade_pct = 0.0
+        daily_drive_hours = 8.0
+
+        if len(args) >= 1:
+            avg_temp_f = args[0]
+        if len(args) >= 2:
+            vehicle_key = args[1]
+        if len(args) >= 3:
+            solar_irradiance_wm2 = args[2]
+        if len(args) >= 4:
+            shade_pct = args[3]
+        if len(args) >= 5:
+            daily_drive_hours = args[4]
+
+        avg_temp_f = float(kwargs.get("avg_temp_f", kwargs.get("temp_f", avg_temp_f)))
+        vehicle_key = str(kwargs.get("vehicle_key", kwargs.get("vehicle", vehicle_key)))
+        solar = float(kwargs.get("solar_irradiance_wm2", kwargs.get("solar", kwargs.get("solar_wm2", solar_irradiance_wm2))))
+        shade = float(kwargs.get("shade_pct", kwargs.get("shade", shade_pct)))
 
         specs = EV_SPECS.get(vehicle_key, list(EV_SPECS.values())[0])
-        replacement_cost = specs["battery_replacement_cost_usd"]
-        lifespan_years = specs["nominal_cycle_life_years"]
+        replacement_cost = specs.get("battery_replacement_cost_usd", 28000)
+        lifespan_years = specs.get("nominal_cycle_life_years", 8)
 
-        solar_add = (float(solar) / 1000.0) * 5.5
-        shade_sub = (float(shade) / 100.0) * 8.5
-        effective_temp_f = float(avg_temp_f) + solar_add - shade_sub
+        solar_add = (solar / 1000.0) * 5.5
+        shade_sub = (shade / 100.0) * 8.5
+        effective_temp_f = avg_temp_f + solar_add - shade_sub
 
         factor = self.degradation_factor(avg_temp_f, solar, shade)
         baseline_annual = replacement_cost / lifespan_years
@@ -93,8 +116,8 @@ class BatteryDegradationModel:
         extra_annual = max(0.0, heat_annual - baseline_annual)
 
         return {
-            "vehicle": specs["name"],
-            "avg_temp_f": round(float(avg_temp_f), 1),
+            "vehicle": specs.get("name", vehicle_key),
+            "avg_temp_f": round(avg_temp_f, 1),
             "effective_temp_f": round(effective_temp_f, 1),
             "degradation_factor": factor,
             "baseline_factor": 1.000,
@@ -105,12 +128,12 @@ class BatteryDegradationModel:
             "baseline_annual_cost_usd": round(baseline_annual, 2),
             "heat_annual_cost_usd": round(heat_annual, 2),
             "extra_annual_cost_usd": round(extra_annual, 2),
-            "solar_irradiance_wm2": float(solar),
+            "solar_irradiance_wm2": solar,
             "solar_temp_addition_f": round(solar_add, 1),
             "shade_temp_reduction_f": round(shade_sub, 1)
         }
 
-    def compare_routes(self, routes: list, vehicle_key: str,
+    def compare_routes(self, routes: list, vehicle_key: str = "Rivian_EDV_500",
                        solar_irradiance_wm2: float = 0,
                        *args, **kwargs) -> dict:
         """

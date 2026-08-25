@@ -24,6 +24,9 @@ st.markdown("""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
   html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+  header[data-testid="stHeader"] { background: rgba(4, 9, 28, 0.8) !important; backdrop-filter: blur(8px); }
+  #MainMenu { visibility: hidden; }
+  footer { visibility: hidden; }
   [data-testid="stAppViewContainer"] {
       background: radial-gradient(circle at 50% 0%, #0c1729 0%, #050a14 70%, #03060c 100%);
       color: #e2e8f0;
@@ -52,6 +55,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+with st.sidebar:
+    st.caption("FortyGuard Global AI Hackathon '26")
+    st.caption("Track 03: Industrial & Enterprise")
+
 client = FortyGuardClient()
 bm = BatteryDegradationModel()
 
@@ -79,7 +86,7 @@ with c3:
 
 # Fetch forecast
 with st.spinner("Querying FortyGuard 12-hour thermal forecast telemetry..."):
-    city = CITY_DATA[city_key]
+    city = CITY_DATA.get(city_key, list(CITY_DATA.values())[0])
     location = f"{city['center'][0]},{city['center'][1]}"
     forecast_temps = client.get_forecast(location, hours_ahead=12)
 

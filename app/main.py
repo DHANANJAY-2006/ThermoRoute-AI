@@ -21,6 +21,14 @@ st.markdown("""
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
+  /* Clean up Streamlit header */
+  header[data-testid="stHeader"] {
+      background: rgba(4, 9, 28, 0.8) !important;
+      backdrop-filter: blur(8px);
+  }
+  #MainMenu { visibility: hidden; }
+  footer { visibility: hidden; }
+
   /* Deep obsidian/navy background */
   [data-testid="stAppViewContainer"] {
       background: radial-gradient(circle at 50% 0%, #0c1729 0%, #050a14 70%, #03060c 100%);
@@ -113,13 +121,6 @@ with st.sidebar:
     st.markdown('<div class="status-badge">THERMOROUTE AI // v1.0</div>', unsafe_allow_html=True)
     st.markdown("### Fleet Telemetry")
     st.caption("FortyGuard Temperature API® Enterprise Suite")
-    st.markdown("---")
-    st.markdown("""
-    **Operational Parameters**
-    - Elevation: 2.0 Meters AGL
-    - Model: Arrhenius Degradation
-    - Coverage: US Metro Logistics Hubs
-    """)
     st.markdown("---")
     st.caption("FortyGuard Global AI Hackathon '26")
     st.caption("Track 03: Industrial & Enterprise")

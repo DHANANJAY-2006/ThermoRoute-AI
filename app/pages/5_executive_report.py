@@ -58,6 +58,28 @@ bm = BatteryDegradationModel()
 with open(os.path.join(os.path.dirname(__file__), "../../data/ev_specs.json"), encoding="utf-8") as f:
     ev_specs = json.load(f)
 
+
+def _pdf_clean(text: str) -> str:
+    """Sanitizes text for standard Latin-1 PDF output."""
+    if not text:
+        return ""
+    text_str = str(text)
+    mapping = {
+        "—": "-",
+        "–": "-",
+        "’": "'",
+        "‘": "'",
+        '“': '"',
+        '”': '"',
+        "®": "(R)",
+        "°": " deg ",
+        "•": "-",
+    }
+    for old, new in mapping.items():
+        text_str = text_str.replace(old, new)
+    return text_str.encode("latin-1", "replace").decode("latin-1")
+
+
 st.markdown("## Executive Thermal Risk Brief")
 st.caption("Multi-dimensional intelligence synthesis powered by FortyGuard /v1/heat_intelligence endpoint.")
 st.markdown("---")
@@ -148,14 +170,14 @@ if st.button("Generate Executive Brief", type="primary", use_container_width=Tru
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Helvetica", "B", 18)
-    pdf.cell(0, 12, "ThermoRoute AI — Executive Risk Brief", ln=True)
+    pdf.cell(0, 12, _pdf_clean("ThermoRoute AI - Executive Risk Brief"), ln=True)
     pdf.set_font("Helvetica", "", 10)
-    pdf.cell(0, 6, f"Operational Hub: {selected_city}  |  Date: {datetime.now().strftime('%B %d, %Y')}", ln=True)
-    pdf.cell(0, 6, "Telemetry Foundation: FortyGuard Temperature API(R)  |  Track 03 Industrial & Enterprise", ln=True)
+    pdf.cell(0, 6, _pdf_clean(f"Operational Hub: {selected_city} | Date: {datetime.now().strftime('%B %d, %Y')}"), ln=True)
+    pdf.cell(0, 6, _pdf_clean("Telemetry Foundation: FortyGuard Temperature API(R) | Track 03 Industrial & Enterprise"), ln=True)
     pdf.ln(4)
 
     pdf.set_font("Helvetica", "B", 13)
-    pdf.cell(0, 9, "Executive Financial Summary", ln=True)
+    pdf.cell(0, 9, _pdf_clean("Executive Financial Summary"), ln=True)
     pdf.set_font("Helvetica", "", 10)
     pdf_rows = [
         ("Annual Savings Per Vehicle", f"${savings_per_van:,.0f}"),
@@ -164,18 +186,18 @@ if st.button("Generate Executive Brief", type="primary", use_container_width=Tru
         ("5-Year Cumulative Net Benefit", f"${roi['five_year_net_usd']:,.0f}"),
     ]
     for k, v in pdf_rows:
-        pdf.cell(90, 7, k)
-        pdf.cell(0, 7, v, ln=True)
+        pdf.cell(90, 7, _pdf_clean(k))
+        pdf.cell(0, 7, _pdf_clean(v), ln=True)
 
     pdf.ln(4)
     pdf.set_font("Helvetica", "B", 13)
-    pdf.cell(0, 9, "Mandated Operational Protocol", ln=True)
+    pdf.cell(0, 9, _pdf_clean("Mandated Operational Protocol"), ln=True)
     pdf.set_font("Helvetica", "", 10)
-    pdf.multi_cell(0, 6,
+    pdf.multi_cell(0, 6, _pdf_clean(
         f"Reroute {fleet_size:,} active units from {worst_route.get('name', 'Unmanaged')} ({worst_route.get('avg_temp_f', 110):.1f}F average) "
         f"to {best_route.get('name', 'Optimized')} ({best_route.get('avg_temp_f', 95):.1f}F average). "
         f"Projected fleet-wide asset preservation value: ${roi['total_annual_savings_usd']:,.0f} annually."
-    )
+    ))
 
     pdf_output = pdf.output()
     st.download_button(

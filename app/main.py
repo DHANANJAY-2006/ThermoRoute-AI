@@ -325,6 +325,8 @@ st.markdown("### Electrochemical Degradation Model")
 st.markdown("Lithium-ion cell aging follows the **Arrhenius degradation relationship**, where elevated operating temperature accelerates solid electrolyte interphase (SEI) layer growth (Activation Energy: 52.5 kJ/mol):")
 st.latex(r"\frac{k(T)}{k(T_0)} = \exp\left( \frac{E_a}{R} \left( \frac{1}{T_0} - \frac{1}{T_{\text{effective}}} \right) \right)")
 
+st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+
 s1, s2, s3, s4 = st.columns(4)
 with s1:
     st.metric(label="Nominal Baseline (77°F)", value="1.00x", delta="Rated Life: 8.0 Years")

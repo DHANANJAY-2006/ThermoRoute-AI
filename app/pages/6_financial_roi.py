@@ -1,5 +1,5 @@
 """
-Page 3 — Financial & ROI Analysis
+Page 6 — Financial & ROI Analysis
 Financial modeling of thermal degradation mitigation.
 Quantifies capital expenditure avoidance, payback horizons, and multi-year projections.
 """
@@ -70,21 +70,21 @@ with i1:
         format_func=lambda k: f"{ev_specs[k]['name']} (${ev_specs[k]['battery_replacement_cost_usd']:,} Pack Replacement)"
     )
 with i2:
-    hot_temp = st.slider("High-Stress Baseline Temp (°F)", 90, 130, 112)
+    hot_temp = st.slider("High-Stress Baseline Temp (°F)", 90.0, 130.0, 111.4, step=0.5)
 with i3:
-    cool_temp = st.slider("Thermally Managed Corridor Temp (°F)", 70, 110, 96)
+    cool_temp = st.slider("Thermally Managed Corridor Temp (°F)", 70.0, 110.0, 95.9, step=0.5)
 
 i4, i5, i6 = st.columns(3)
 with i4:
     fleet_size = st.number_input("Operational Fleet Size (Units)", 1, 250000, 500, step=25)
 with i5:
-    solar = st.slider("Mean Solar Irradiance (W/m²)", 200, 1200, 900)
+    solar = st.slider("Mean Solar Irradiance (W/m²)", 200, 1200, 900, step=50)
 with i6:
     saas_fee = st.number_input("Software Platform Fee ($/Unit/Month)", 1.0, 250.0, 29.0, step=1.0)
 
 # Calculations
-hot_data = bm.annual_degradation_cost(hot_temp, vehicle_key, solar)
-cool_data = bm.annual_degradation_cost(cool_temp, vehicle_key, solar)
+hot_data = bm.annual_degradation_cost(hot_temp, vehicle_key, solar, shade_pct=5.0)
+cool_data = bm.annual_degradation_cost(cool_temp, vehicle_key, solar=solar*0.75, shade_pct=30.0)
 savings_per_van = max(0.0, hot_data["heat_annual_cost_usd"] - cool_data["heat_annual_cost_usd"])
 roi = fleet_roi_summary(savings_per_van, fleet_size, saas_fee)
 projection = yearly_projection(savings_per_van, fleet_size)
@@ -120,8 +120,8 @@ with c_plot1:
         line=dict(color="#38bdf8", width=3),
         name="Degradation Multiplier"
     ))
-    fig_arr.add_vline(x=hot_temp, line_color="#ef4444", line_dash="dash", annotation_text=f"High-Stress ({hot_temp}°F)")
-    fig_arr.add_vline(x=cool_temp, line_color="#22c55e", line_dash="dash", annotation_text=f"Optimized ({cool_temp}°F)")
+    fig_arr.add_vline(x=hot_temp, line_color="#ef4444", line_dash="dash", annotation_text=f"High-Stress ({hot_temp:.1f}°F)")
+    fig_arr.add_vline(x=cool_temp, line_color="#22c55e", line_dash="dash", annotation_text=f"Optimized ({cool_temp:.1f}°F)")
     fig_arr.add_vline(x=77, line_color="#64748b", line_dash="dot", annotation_text="Nominal (77°F)")
     fig_arr.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",

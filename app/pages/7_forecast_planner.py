@@ -1,5 +1,5 @@
 """
-Page 4 — 12-Hour Shift Planner
+Page 7 — 12-Hour Shift Planner
 Utilizes FortyGuard's 12-hour thermal forecast to optimize dispatch timing.
 Adheres strictly to FortyGuard API's 12-hour maximum forecast horizon.
 """

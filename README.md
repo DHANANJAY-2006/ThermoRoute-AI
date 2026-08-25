@@ -1,6 +1,6 @@
 # ThermoRoute AI
 
-> **Hyperlocal Thermal Routing & Battery Preservation Engine for Commercial EV Fleets**  
+> **Hyperlocal Thermal Routing, Live Telematics & Battery Preservation Engine for Commercial EV Fleets**  
 > Powered by **FortyGuard Temperature API®** · FortyGuard Global AI Hackathon '26 · Track 03: Industrial & Enterprise
 
 [![FortyGuard Temperature API](https://img.shields.io/badge/Powered%20by-FortyGuard%20Temperature%20API-1769b0?style=flat-square)](https://www.fortyguard.com)
@@ -14,28 +14,33 @@
 
 Commercial EV delivery fleets (Amazon Logistics, DHL Express, FedEx, UPS) route hundreds of thousands of medium- and heavy-duty electric vans using conventional routing engines optimized strictly for **distance** and **transit time**.
 
-These engines ignore roadway microclimates. In major logistics hubs such as Phoenix, AZ, surface-level ambient air temperatures reach **111.4°F (44.1°C)**. Under these conditions with direct solar radiation, the electrochemical degradation of commercial lithium-ion battery packs accelerates by **4.20x** relative to nominal baseline operating conditions (Arrhenius kinetics with $E_a = 52.5\text{ kJ/mol}$).
+These legacy systems create a massive operational blind spot: in primary US logistics hubs such as Phoenix, AZ, surface-level roadway temperatures exceed **111.4°F (44.1°C)**. Under high solar load, the electrochemical degradation rate of commercial lithium-ion battery packs accelerates by **4.20x** relative to nominal baseline operating conditions (Arrhenius kinetics with $E_a = 52.5\text{ kJ/mol}$).
 
-Operating a commercial EV delivery vehicle through unmanaged high-stress urban heat corridors imposes up to **$14,689 per vehicle per year** in premature battery capacity loss. Redirecting that same vehicle to a thermally optimal corridor through ThermoRoute AI reduces annual degradation cost to **$7,836 per year**.
+Operating an electric delivery van through unmanaged high-stress urban heat corridors imposes up to **$14,689 per vehicle per year** in premature battery depreciation. ThermoRoute AI autonomously identifies and redirects fleets to thermally optimal corridors, reducing annual degradation to **$7,836 per year**.
 
-**Net Verified Impact:** **$6,853 per vehicle per year** in avoided battery depreciation.  
-**Fleet Scale (500 Active Units):** **$3.43M in annual CapEx savings**, delivering a **5-year net benefit of $16.26M**.
-
----
-
-## Core System Architecture
-
-ThermoRoute AI correlates 2-meter street-level temperature telemetry from the **FortyGuard Temperature API®** with vehicle-specific battery pack degradation parameters.
-
-1. **Fleet Risk Monitor** — City-wide thermal exposure tracking across primary US logistics corridors (Phoenix, Las Vegas, Dallas, Houston).
-2. **Thermal Route Engine** — Microclimate corridor evaluation combining roadway heatmaps, canopy shade metrics, and ground-level exposure into optimal transit recommendations.
-3. **Financial & ROI Modeler** — Dynamic simulation of CapEx preservation, payback periods, and multi-year cumulative fleet return.
-4. **12-Hour Shift Planner** — Time-series dispatch scheduling utilizing FortyGuard's 12-hour forward forecast to shift heavy transit cycles into low-thermal-stress windows.
-5. **Executive Risk Brief** — Automated operational briefing generator utilizing the FortyGuard `/v1/heat_intelligence` multi-dimensional synthesis endpoint with exportable PDF briefs.
+* **Net Verified Unit Savings:** **$6,853 per vehicle per year** in avoided battery depreciation.
+* **Fleet Scale (500 Active Units):** **$3.43M in annual CapEx savings**, delivering a **5-year net benefit of $16.26M**.
+* **Environmental Impact:** Avoids **~4,200 metric tons of Scope 3 embedded battery manufacturing $CO_2e$** over 5 years.
 
 ---
 
-## Scientific Methodology
+## Comprehensive Platform Modules
+
+ThermoRoute AI is an enterprise fleet intelligence suite consisting of 9 modules:
+
+1. **Regional Fleet Risk Monitor** — Multi-hub thermal exposure tracking across primary US logistics corridors (Phoenix, Las Vegas, Dallas, Houston).
+2. **Thermal Route Engine** — Corridor microclimate scoring combining 2-meter ambient temperature, canopy shade relief, and solar irradiance.
+3. **Live Telematics & In-Flight Rerouting** — Real-time telemetry command center simulating active commercial EV delivery vans with automated in-flight heat pocket diversion triggers.
+4. **Physics-Informed ML Battery Health (SoH & RUL)** — 120,000-mile capacity retention simulator modeling life extension from 2.2 years (unmanaged) to 4.6 years (managed).
+5. **Smart Depot Charging Optimizer** — Nighttime charging and pre-conditioning scheduler aligning FortyGuard 12-hour forecasts with utility Time-of-Use (TOU) tariffs.
+6. **Financial & CapEx ROI Modeler** — Dynamic simulation of CapEx preservation, payback periods, and multi-year cumulative fleet return.
+7. **12-Hour Predictive Dispatch Planner** — Forward-looking dispatch scheduler enforcing FortyGuard's 12-hour forecast limits to shift heavy transit into cool morning windows.
+8. **Scope 3 ESG & Carbon Avoidance Ledger** — Life-Cycle Assessment (LCA) quantifying embedded manufacturing greenhouse gas emissions avoided.
+9. **Executive Risk Brief & Audit Report** — Automated operational briefing generator utilizing FortyGuard's `/v1/heat_intelligence` endpoint with exportable PDF briefs.
+
+---
+
+## Scientific & Electrochemical Methodology
 
 Cell degradation rates are computed using the **Arrhenius electrochemical kinetics model**, the global standard employed by automotive OEMs to rate battery longevity:
 
@@ -44,10 +49,10 @@ $$\frac{k(T)}{k(T_0)} = \exp\left( \frac{E_a}{R} \left( \frac{1}{T_0} - \frac{1}
 Where:
 - $E_a = 52.5\text{ kJ/mol}$ (Activation energy for commercial Li-ion SEI degradation)
 - $R = 8.314\text{ J/(mol}\cdot\text{K)}$ (Universal gas constant)
-- $T_0 = 298.15\text{ K}$ ($25^\circ\text{C} / 77.0^\circ\text{F}$ baseline)
-- $T_{\text{effective}}$ accounts for ambient roadway temperature, direct solar radiation load (from `/v1/env_params`), and canopy shading offsets (from `/v1/satellite`).
+- $T_0 = 298.15\text{ K}$ ($25.0^\circ\text{C} / 77.0^\circ\text{F}$ baseline)
+- $T_{\text{effective}} = T_{\text{ambient}} + \Delta T_{\text{solar}} - \Delta T_{\text{shade}}$
 
-| Roadway Conditions | Degradation Multiplier | Nominal Battery Life (Rivian EDV) |
+| Roadway Microclimate | Degradation Multiplier | Nominal Battery Life (Rivian EDV) |
 | :--- | :--- | :--- |
 | **77.0°F (25°C)** | **1.00x** (Nominal Baseline) | **8.0 Years** |
 | **95.0°F (35°C)** | **1.99x** | **4.0 Years** |
@@ -102,16 +107,24 @@ ThermoRoute-AI/
 ├── app/
 │   ├── main.py                    # Enterprise landing & system telemetry
 │   └── pages/
-│       ├── 1_fleet_dashboard.py   # Fleet-wide thermal exposure monitor
-│       ├── 2_route_planner.py     # Interactive spatial route engine
-│       ├── 3_battery_savings.py   # CapEx preservation & ROI analysis
-│       ├── 4_forecast_planner.py  # 12-hour predictive dispatch planner
-│       └── 5_executive_report.py  # Executive brief & PDF generator
+│       ├── 1_fleet_dashboard.py   # Regional thermal risk monitor
+│       ├── 2_route_planner.py     # Spatial thermal route engine
+│       ├── 3_live_telematics.py   # Live fleet telematics & in-flight rerouting
+│       ├── 4_battery_health_ml.py # Physics-informed ML SoH & RUL predictor
+│       ├── 5_depot_charging.py    # Smart depot charging & pre-conditioning
+│       ├── 6_financial_roi.py     # CapEx preservation & ROI analysis
+│       ├── 7_forecast_planner.py  # 12-hour predictive dispatch planner
+│       ├── 8_carbon_esg.py        # Scope 3 ESG & carbon avoidance ledger
+│       └── 9_executive_report.py  # Executive risk brief & PDF generator
 ├── core/
 │   ├── fortyguard_client.py       # Full 6-endpoint async client
 │   ├── battery_model.py           # Arrhenius cell degradation calculations
 │   ├── route_engine.py            # Spatial corridor scoring pipeline
+│   ├── telematics_simulator.py    # Real-time active fleet simulation
+│   ├── ml_battery_health.py       # ML battery health & RUL prediction
+│   ├── depot_optimizer.py         # Smart depot charging schedule optimizer
 │   ├── cost_calculator.py         # Financial ROI & fleet scaling logic
+│   ├── carbon_calculator.py       # Scope 3 LCA carbon avoidance engine
 │   └── alert_manager.py           # Automated dispatch decision engine
 ├── data/
 │   ├── demo_routes.json           # US logistics hub waypoint networks

@@ -1,0 +1,1 @@
+# ThermoRoute AI — core package

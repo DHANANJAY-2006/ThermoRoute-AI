@@ -1,0 +1,7 @@
+{
+  "AZ": {"state": "Arizona", "rate_kwh": 0.1175, "peak_multiplier": 2.4},
+  "NV": {"state": "Nevada",  "rate_kwh": 0.1050, "peak_multiplier": 2.1},
+  "TX": {"state": "Texas",   "rate_kwh": 0.1218, "peak_multiplier": 2.8},
+  "CA": {"state": "California", "rate_kwh": 0.2390, "peak_multiplier": 3.1},
+  "FL": {"state": "Florida", "rate_kwh": 0.1342, "peak_multiplier": 2.2}
+}

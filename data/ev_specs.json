@@ -1,0 +1,46 @@
+{
+  "Rivian_EDV_500": {
+    "name": "Rivian EDV 500",
+    "operator": "Amazon",
+    "battery_kwh": 135,
+    "battery_replacement_cost_usd": 28000,
+    "nominal_cycle_life_years": 8,
+    "optimal_temp_f": 68,
+    "max_safe_temp_f": 95,
+    "critical_temp_f": 110,
+    "icon": "🚐"
+  },
+  "Mercedes_eSprinter": {
+    "name": "Mercedes eSprinter",
+    "operator": "DHL / UPS",
+    "battery_kwh": 113,
+    "battery_replacement_cost_usd": 22000,
+    "nominal_cycle_life_years": 7,
+    "optimal_temp_f": 68,
+    "max_safe_temp_f": 95,
+    "critical_temp_f": 108,
+    "icon": "🚐"
+  },
+  "Ford_E_Transit": {
+    "name": "Ford E-Transit",
+    "operator": "FedEx / General Fleet",
+    "battery_kwh": 67,
+    "battery_replacement_cost_usd": 14000,
+    "nominal_cycle_life_years": 6,
+    "optimal_temp_f": 68,
+    "max_safe_temp_f": 95,
+    "critical_temp_f": 105,
+    "icon": "🚚"
+  },
+  "BrightDrop_EV600": {
+    "name": "BrightDrop EV600",
+    "operator": "FedEx",
+    "battery_kwh": 160,
+    "battery_replacement_cost_usd": 32000,
+    "nominal_cycle_life_years": 9,
+    "optimal_temp_f": 68,
+    "max_safe_temp_f": 95,
+    "critical_temp_f": 112,
+    "icon": "🚐"
+  }
+}

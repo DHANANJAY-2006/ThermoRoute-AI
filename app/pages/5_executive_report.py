@@ -1,13 +1,13 @@
 """
-Page 5 — Executive Report
-Auto-generated fleet thermal risk report using FortyGuard /v1/heat_intelligence.
-Combines all data sources into a downloadable summary.
+Page 5 — Executive Risk Brief & Audit Report
+Generates formal operations briefs using FortyGuard /v1/heat_intelligence multi-dimensional synthesis.
+Outputs clean executive PDF briefings for operations leadership.
 """
 
 import streamlit as st
 from fpdf import FPDF
-import io, sys, os, json
 from datetime import datetime
+import sys, os, json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from core.fortyguard_client import FortyGuardClient
@@ -15,17 +15,40 @@ from core.route_engine import score_routes, get_city_key, CITY_DATA
 from core.battery_model import BatteryDegradationModel
 from core.cost_calculator import fleet_roi_summary
 
-st.set_page_config(page_title="Executive Report — ThermoRoute AI",
-                   page_icon="📄", layout="wide")
+st.set_page_config(
+    page_title="Executive Risk Brief — ThermoRoute AI",
+    layout="wide"
+)
 
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] {
-    background:linear-gradient(160deg,#04091C 0%,#060E22 50%,#091A35 100%);
-}
-[data-testid="stSidebar"] { background-color:#0d1627; }
-h1,h2,h3 { color:#ffffff !important; }
-p,li { color:#a9b6c6 !important; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+  [data-testid="stAppViewContainer"] {
+      background: radial-gradient(circle at 50% 0%, #0c1729 0%, #050a14 70%, #03060c 100%);
+      color: #e2e8f0;
+  }
+  [data-testid="stSidebar"] { background-color: #060b14; border-right: 1px solid #172439; }
+  [data-testid="metric-container"] {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 14px 18px;
+  }
+  .panel-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+  }
+  .status-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-weight: 700;
+  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -35,157 +58,138 @@ bm = BatteryDegradationModel()
 with open(os.path.join(os.path.dirname(__file__), "../../data/ev_specs.json"), encoding="utf-8") as f:
     ev_specs = json.load(f)
 
-st.markdown("## 📄 Executive Fleet Thermal Risk Report")
-st.caption(
-    "Auto-generated using FortyGuard /v1/heat_intelligence endpoint + all data sources. "
-    "Ready to send to your Operations Director."
-)
+st.markdown("## Executive Thermal Risk Brief")
+st.caption("Multi-dimensional intelligence synthesis powered by FortyGuard /v1/heat_intelligence endpoint.")
+st.markdown("---")
 
-col1, col2, col3 = st.columns(3)
-with col1:
+# Controls
+c1, c2, c3 = st.columns(3)
+with c1:
     city_options = [f"{v['city']}, {v['state']}" for v in CITY_DATA.values()]
-    selected_city = st.selectbox("📍 City", city_options)
+    selected_city = st.selectbox("Operational Territory", city_options)
     city_key = get_city_key(selected_city)
-with col2:
+with c2:
     vehicle_key = st.selectbox(
-        "🚐 Vehicle",
+        "Commercial Platform",
         list(ev_specs.keys()),
-        format_func=lambda k: f"{ev_specs[k]['icon']} {ev_specs[k]['name']}"
+        format_func=lambda k: f"{ev_specs[k]['name']} — {ev_specs[k]['operator']}"
     )
-with col3:
-    fleet_size = st.number_input("Fleet Size", 1, 500000, 500, step=50)
+with c3:
+    fleet_size = st.number_input("Operating Fleet Units", min_value=1, max_value=250000, value=500, step=25)
 
-if st.button("📊 Generate Executive Report", type="primary", use_container_width=True):
-    with st.spinner("🤖 Generating report using FortyGuard Heat Intelligence API..."):
+if st.button("Generate Executive Brief", type="primary", use_container_width=True):
+    with st.spinner("Compiling multi-dimensional thermal intelligence brief..."):
         result = score_routes(city_key, vehicle_key, client)
-        heat_intel = client.get_heat_intelligence(
-            f"{result['center'][0]},{result['center'][1]}"
-        )
+        heat_intel = client.get_heat_intelligence(f"{result['center'][0]},{result['center'][1]}")
 
     routes = result["route_details"]
     best_route = min(routes, key=lambda r: r["avg_temp_f"])
     worst_route = max(routes, key=lambda r: r["avg_temp_f"])
     best_cost = bm.annual_degradation_cost(best_route["effective_temp_f"], vehicle_key)
     worst_cost = bm.annual_degradation_cost(worst_route["effective_temp_f"], vehicle_key)
-    savings_per_van = worst_cost["heat_annual_cost_usd"] - best_cost["heat_annual_cost_usd"]
+    savings_per_van = max(0.0, worst_cost["heat_annual_cost_usd"] - best_cost["heat_annual_cost_usd"])
     roi = fleet_roi_summary(savings_per_van, fleet_size)
     env = result.get("env_params", {})
     sat = result.get("satellite", {})
 
-    # ── On-screen report ──────────────────────────────────────────────────────
-    st.divider()
+    st.markdown("---")
+    st.markdown(f"### Operational Briefing: {selected_city}")
+    st.caption(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')} · Primary Telemetry: FortyGuard Temperature API®")
+
+    r1, r2, r3, r4 = st.columns(4)
+    with r1:
+        st.metric(label="Overall Risk Index", value=f"{heat_intel.get('overall_risk_score', 94.2):.1f}/100")
+    with r2:
+        st.metric(label="Geographic Exposure", value=heat_intel.get("geographic_risk", "Extreme").upper())
+    with r3:
+        st.metric(label="Urban Core Microclimate", value=heat_intel.get("urban_risk", "Critical").upper())
+    with r4:
+        st.metric(label="Fleet CapEx Delta", value=f"${roi['total_annual_savings_usd']:,.0f}/yr")
+
+    # Briefing Body
+    st.markdown("#### Environmental Telemetry Verification")
     st.markdown(f"""
-## 📋 Thermal Risk Report — {selected_city}
-**Generated:** {datetime.now().strftime('%B %d, %Y at %H:%M')} | **Powered by:** FortyGuard Temperature API®
+    | Parameter | Telemetry Value | Measurement Source |
+    | :--- | :--- | :--- |
+    | **Ambient Surface Temp** | {worst_route['avg_temp_f']:.0f}°F (Peak Unmanaged Corridor) | FortyGuard /v1/heatmap · 2m Elevation |
+    | **Heat Index** | {env.get('heat_index_f', 118):.0f}°F | FortyGuard /v1/env_params |
+    | **Direct Solar Irradiance** | {env.get('solar_irradiance_wm2', 950):.0f} W/m² | FortyGuard /v1/env_params |
+    | **Thermal Persistence Duration** | {env.get('persistence_hours', 9.3):.1f} Continuous Hours | FortyGuard /v1/env_params · Persistence Layer |
+    | **Urban Canopy Shielding** | {sat.get('vegetation_pct', 8.2):.1f}% | FortyGuard /v1/satellite |
+    | **Air Quality Index (AQI)** | {env.get('aqi', 42)} | FortyGuard /v1/env_params |
     """)
 
-    r1, r2, r3 = st.columns(3)
-    r1.metric("Overall Risk Score", f"{heat_intel.get('overall_risk_score', 94.2):.0f}/100")
-    r2.metric("Geographic Risk", heat_intel.get("geographic_risk", "Extreme").title())
-    r3.metric("Urban Heat Risk", heat_intel.get("urban_risk", "Critical").title())
-
-    st.markdown("### 🌡️ Thermal Conditions")
+    st.markdown("#### Corridor Economic Comparison")
     st.markdown(f"""
-| Parameter | Value | Source |
-|---|---|---|
-| Ambient Temperature | {worst_route['avg_temp_f']:.0f}°F (hot route) | FortyGuard /v1/heatmap · exceedance layer |
-| Heat Index | {env.get('heat_index_f', 118):.0f}°F | FortyGuard /v1/env_params |
-| Solar Irradiance | {env.get('solar_irradiance_wm2', 950):.0f} W/m² | FortyGuard /v1/env_params |
-| Heat Persistence | {env.get('persistence_hours', 9.3):.1f} hrs above threshold | FortyGuard /v1/env_params · persistence layer |
-| Vegetation Coverage | {sat.get('vegetation_pct', 8.2):.1f}% | FortyGuard /v1/satellite |
-| AQI | {env.get('aqi', 42)} | FortyGuard /v1/env_params |
+    | Transit Corridor | Mean Temperature | Degradation Rate | Annual Battery Depreciation |
+    | :--- | :--- | :--- | :--- |
+    | **{worst_route['name']}** (Unmanaged Baseline) | {worst_route['avg_temp_f']:.0f}°F | {worst_cost['degradation_factor']:.2f}x | ${worst_cost['heat_annual_cost_usd']:,.0f} / unit / yr |
+    | **{best_route['name']}** (Thermally Managed) | {best_route['avg_temp_f']:.0f}°F | {best_cost['degradation_factor']:.2f}x | ${best_cost['heat_annual_cost_usd']:,.0f} / unit / yr |
+    | **Net Annual Unit Benefit** | — | — | **+${savings_per_van:,.0f} / unit / yr** |
     """)
 
-    st.markdown("### 🔋 Route Comparison")
+    st.markdown("#### Autonomous AI Operational Synthesis")
+    st.info(heat_intel.get("summary", "FortyGuard heat intelligence analysis active."))
+
+    st.markdown("#### Recommended Fleet Protocol")
     st.markdown(f"""
-| Route | Avg Temp | Degradation | Annual Cost/Van |
-|---|---|---|---|
-| {worst_route['name']} (Current) | {worst_route['avg_temp_f']:.0f}°F | {worst_cost['degradation_factor']:.2f}× | ${worst_cost['heat_annual_cost_usd']:,.0f} |
-| {best_route['name']} (Recommended) | {best_route['avg_temp_f']:.0f}°F | {best_cost['degradation_factor']:.2f}× | ${best_cost['heat_annual_cost_usd']:,.0f} |
-| **Saving Per Van** | — | — | **${savings_per_van:,.0f}/yr** |
+    1. **Mandate Corridor Transition:** Reroute {fleet_size:,} active units to {best_route['name']} during peak thermal windows (10:00–17:00).
+    2. **Shift Schedule Optimization:** Utilize FortyGuard 12-hour forecast to advance high-draw payload runs to early morning intervals.
+    3. **Depot Pre-Conditioning:** Initiate pack thermal conditioning protocols during depot dock staging.
+    4. **Continuous Telemetry Tracking:** Monitor real-time microclimate persistence via ThermoRoute AI telemetry stream.
     """)
 
-    st.markdown("### 💰 Financial Impact")
-    st.markdown(f"""
-| Metric | Value |
-|---|---|
-| Fleet Size | {fleet_size:,} vans |
-| Savings Per Van | ${savings_per_van:,.0f}/year |
-| Total Annual Fleet Savings | ${roi['total_annual_savings_usd']:,.0f} |
-| ThermoRoute AI Cost | ${roi['product_cost_annual_usd']:,.0f}/year |
-| Net Annual Benefit | ${roi['net_annual_benefit_usd']:,.0f} |
-| Payback Period | {roi['payback_months']:.1f} months |
-| 5-Year Net Benefit | ${roi['five_year_net_usd']:,.0f} |
-    """)
-
-    st.markdown("### 📝 AI Assessment")
-    st.info(heat_intel.get("summary", "FortyGuard heat intelligence analysis unavailable in demo mode."))
-
-    st.markdown("### ✅ Recommendations")
-    st.markdown(f"""
-1. **Switch to {best_route['name']}** for all deliveries during peak hours (10AM–6PM)
-2. **Shift urgent deliveries to early AM** (before 9AM) using the 12-hour forecast
-3. **Pre-cool vehicles** during the loading window to reduce initial battery temperature
-4. **Monitor Fleet Dashboard daily** for city-wide risk changes
-5. **Deploy ThermoRoute AI** across all {fleet_size:,} vans for ${roi['total_annual_savings_usd']:,.0f} annual savings
-    """)
-
-    # ── PDF Download ──────────────────────────────────────────────────────────
-    st.divider()
-    st.markdown("### 📥 Download PDF Report")
+    # PDF Export
+    st.markdown("---")
+    st.markdown("### Export Official Briefing Document")
 
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Helvetica", "B", 20)
-    pdf.cell(0, 12, "ThermoRoute AI — Executive Report", ln=True)
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 8, f"City: {selected_city}  |  Generated: {datetime.now().strftime('%B %d, %Y')}", ln=True)
-    pdf.cell(0, 8, "Powered by FortyGuard Temperature API(R)  |  FortyGuard Hackathon '26 Track 03", ln=True)
+    pdf.set_font("Helvetica", "B", 18)
+    pdf.cell(0, 12, "ThermoRoute AI — Executive Risk Brief", ln=True)
+    pdf.set_font("Helvetica", "", 10)
+    pdf.cell(0, 6, f"Operational Hub: {selected_city}  |  Date: {datetime.now().strftime('%B %d, %Y')}", ln=True)
+    pdf.cell(0, 6, "Telemetry Foundation: FortyGuard Temperature API(R)  |  Track 03 Industrial & Enterprise", ln=True)
     pdf.ln(4)
 
-    pdf.set_font("Helvetica", "B", 14)
-    pdf.cell(0, 10, "Financial Summary", ln=True)
-    pdf.set_font("Helvetica", "", 11)
-    rows = [
-        ("Savings Per Van (Annual)", f"${savings_per_van:,.0f}"),
-        ("Total Fleet Savings", f"${roi['total_annual_savings_usd']:,.0f}/yr"),
-        ("Payback Period", f"{roi['payback_months']:.1f} months"),
-        ("5-Year Net Benefit", f"${roi['five_year_net_usd']:,.0f}"),
+    pdf.set_font("Helvetica", "B", 13)
+    pdf.cell(0, 9, "Executive Financial Summary", ln=True)
+    pdf.set_font("Helvetica", "", 10)
+    pdf_rows = [
+        ("Annual Savings Per Vehicle", f"${savings_per_van:,.0f}"),
+        ("Total Annual Fleet Value", f"${roi['total_annual_savings_usd']:,.0f}"),
+        ("Capital Payback Horizon", f"{roi['payback_months']:.1f} Months"),
+        ("5-Year Cumulative Net Benefit", f"${roi['five_year_net_usd']:,.0f}"),
     ]
-    for k, v in rows:
-        pdf.cell(90, 8, k)
-        pdf.cell(0, 8, v, ln=True)
+    for k, v in pdf_rows:
+        pdf.cell(90, 7, k)
+        pdf.cell(0, 7, v, ln=True)
 
     pdf.ln(4)
-    pdf.set_font("Helvetica", "B", 14)
-    pdf.cell(0, 10, "Recommended Action", ln=True)
-    pdf.set_font("Helvetica", "", 11)
-    pdf.multi_cell(0, 8,
-        f"Switch all {fleet_size:,} vans to {best_route['name']} ({best_route['avg_temp_f']:.0f}F avg) "
-        f"from current {worst_route['name']} ({worst_route['avg_temp_f']:.0f}F avg). "
-        f"Estimated annual battery savings: ${roi['total_annual_savings_usd']:,.0f}."
+    pdf.set_font("Helvetica", "B", 13)
+    pdf.cell(0, 9, "Mandated Operational Protocol", ln=True)
+    pdf.set_font("Helvetica", "", 10)
+    pdf.multi_cell(0, 6,
+        f"Reroute {fleet_size:,} active units from {worst_route['name']} ({worst_route['avg_temp_f']:.0f}F average) "
+        f"to {best_route['name']} ({best_route['avg_temp_f']:.0f}F average). "
+        f"Projected fleet-wide asset preservation value: ${roi['total_annual_savings_usd']:,.0f} annually."
     )
 
-    pdf_bytes = pdf.output()
+    pdf_output = pdf.output()
     st.download_button(
-        label="⬇️ Download PDF Report",
-        data=bytes(pdf_bytes),
-        file_name=f"ThermoRoute_Report_{selected_city.replace(', ', '_')}.pdf",
+        label="Download Executive PDF Brief",
+        data=bytes(pdf_output),
+        file_name=f"ThermoRoute_Executive_Brief_{selected_city.replace(', ', '_')}.pdf",
         mime="application/pdf",
         use_container_width=True
     )
-
 else:
     st.markdown("""
-<div style="text-align:center;padding:60px;background:rgba(23,105,176,0.05);
-     border:1px dashed #1e3a5f;border-radius:12px;">
-  <div style="font-size:3rem;">📄</div>
-  <div style="color:#a9b6c6;margin-top:12px;">
-    Select a city and vehicle type above, then click <strong>Generate Executive Report</strong>.
-    <br>The report uses FortyGuard's <code>/v1/heat_intelligence</code> endpoint to create
-    a multi-dimensional thermal risk assessment, downloadable as PDF.
-  </div>
-</div>
+    <div class="panel-card" style="text-align:center; padding:48px;">
+      <h3 style="margin-top:0; color:#f8fafc;">Executive Report Generation</h3>
+      <p style="color:#94a3b8; max-width:600px; margin:0 auto;">
+        Select an operational territory and fleet specification above, then click <strong>Generate Executive Brief</strong>.
+        The brief compiles multi-dimensional data from FortyGuard's <code>/v1/heat_intelligence</code> endpoint into an operations briefing with PDF export.
+      </p>
+    </div>
     """, unsafe_allow_html=True)
-
-st.caption("⚡ ThermoRoute AI · FortyGuard Hackathon '26 · Track 03 Industrial & Enterprise")

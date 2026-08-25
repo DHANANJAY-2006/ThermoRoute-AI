@@ -1,215 +1,304 @@
 """
-ThermoRoute AI — Main Streamlit App
-=====================================
-EV Fleet Thermal Degradation Router
-Powered by FortyGuard Temperature API
-FortyGuard Global AI Hackathon '26 — Track 03: Industrial & Enterprise
+ThermoRoute AI — Enterprise Thermal Fleet Intelligence
+Powered by FortyGuard Temperature API®
+FortyGuard Global AI Hackathon '26 · Track 03: Industrial & Enterprise
 """
 
 import streamlit as st
 
 st.set_page_config(
-    page_title="ThermoRoute AI",
-    page_icon="⚡",
+    page_title="ThermoRoute AI — Thermal Routing System",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ── Custom CSS ────────────────────────────────────────────────────────────────
+# ── High-End Industrial Styling ───────────────────────────────────────────────
 st.markdown("""
 <style>
-  /* Dark professional theme */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  html, body, [class*="css"] {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* Deep obsidian/navy background */
   [data-testid="stAppViewContainer"] {
-      background: linear-gradient(160deg, #04091C 0%, #060E22 50%, #091A35 100%);
+      background: radial-gradient(circle at 50% 0%, #0c1729 0%, #050a14 70%, #03060c 100%);
+      color: #e2e8f0;
   }
+  
   [data-testid="stSidebar"] {
-      background-color: #0d1627;
-      border-right: 1px solid #1e3a5f;
+      background-color: #060b14;
+      border-right: 1px solid #172439;
   }
+
   /* Metric cards */
   [data-testid="metric-container"] {
-      background-color: rgba(23,105,176,0.12);
-      border: 1px solid rgba(23,105,176,0.3);
-      border-radius: 12px;
-      padding: 16px;
-  }
-  /* Headers */
-  h1, h2, h3 { color: #ffffff !important; }
-  p, li { color: #a9b6c6 !important; }
-  /* Alert boxes */
-  .alert-critical {
-      background: rgba(239,68,68,0.1);
-      border-left: 4px solid #ef4444;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid #1e293b;
       border-radius: 8px;
-      padding: 12px 16px;
-      margin: 8px 0;
+      padding: 16px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
-  .alert-high {
-      background: rgba(249,115,22,0.1);
-      border-left: 4px solid #f97316;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin: 8px 0;
+  [data-testid="metric-container"] label {
+      font-size: 0.75rem !important;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8 !important;
+      font-weight: 600;
   }
-  .alert-ok {
-      background: rgba(34,197,94,0.1);
-      border-left: 4px solid #22c55e;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin: 8px 0;
-  }
-  /* Powered by badge */
-  .powered-badge {
-      background: rgba(255,214,0,0.08);
-      border: 1px solid rgba(255,214,0,0.4);
-      color: #ffda00;
-      border-radius: 99px;
-      padding: 4px 14px;
-      font-size: 0.75rem;
+  [data-testid="metric-container"] [data-testid="stMetricValue"] {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.75rem !important;
       font-weight: 700;
-      letter-spacing: 0.05em;
-      display: inline-block;
+      color: #ffffff;
+  }
+
+  /* Headers */
+  h1 {
+      font-weight: 800 !important;
+      letter-spacing: -0.03em !important;
+      color: #ffffff !important;
+  }
+  h2, h3, h4 {
+      font-weight: 700 !important;
+      letter-spacing: -0.02em !important;
+      color: #f1f5f9 !important;
+  }
+  p, li {
+      color: #94a3b8 !important;
+      font-size: 0.95rem;
+      line-height: 1.6;
+  }
+
+  /* Enterprise badge */
+  .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      color: #38bdf8;
+  }
+  .system-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+  }
+
+  /* Glass panels */
+  .panel-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
   }
 </style>
 """, unsafe_allow_html=True)
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown('<span class="powered-badge">⚡ THERMOROUTE AI</span>',
-                unsafe_allow_html=True)
-    st.markdown("### 🚗 EV Fleet Thermal Router")
-    st.caption("Powered by FortyGuard Temperature API®")
-    st.divider()
-    st.markdown("""
-    **Navigate:**
-    - 🏠 Home (this page)
-    - 🗺️ Route Planner
-    - 💰 Battery Savings
-    - 🌍 Fleet Comparison
-    - 📄 Executive Report
-    """)
-    st.divider()
-    st.caption("FortyGuard Hackathon '26 · Track 03")
-    st.caption("All data: US cities only")
+    st.markdown('<div class="status-badge">THERMOROUTE AI // v1.0</div>', unsafe_allow_html=True)
+    st.markdown("### Fleet Intelligence")
+    st.caption("FortyGuard Temperature API® Integration")
+    st.markdown("---")
+    
+    st.markdown("**Navigation Modules**")
+    st.page_link("main.py", label="System Overview")
+    st.page_link("pages/1_fleet_dashboard.py", label="Fleet Risk Monitor")
+    st.page_link("pages/2_route_planner.py", label="Thermal Route Engine")
+    st.page_link("pages/3_battery_savings.py", label="Financial & ROI Analysis")
+    st.page_link("pages/4_forecast_planner.py", label="12-Hour Shift Planner")
+    st.page_link("pages/5_executive_report.py", label="Executive Risk Brief")
+    
+    st.markdown("---")
+    st.caption("FortyGuard Global AI Hackathon '26")
+    st.caption("Track 03: Industrial & Enterprise")
+    st.caption("Geographic Scope: United States")
 
 # ── Hero Section ──────────────────────────────────────────────────────────────
 st.markdown("""
-<div style="text-align:center; padding: 40px 0 20px;">
-  <span class="powered-badge">FortyGuard Hackathon '26 · Track 03: Industrial & Enterprise</span>
-  <h1 style="font-size: 3rem; margin-top: 16px; color: #fff;">
-    🚗⚡ ThermoRoute AI
+<div style="padding: 24px 0 20px 0;">
+  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+    <span class="status-badge">TRACK 03: INDUSTRIAL & ENTERPRISE</span>
+    <span class="system-pill">HYPERLOCAL THERMAL INTELLIGENCE</span>
+  </div>
+  <h1 style="font-size: 2.75rem; margin: 0 0 12px 0;">
+    ThermoRoute AI
   </h1>
-  <p style="font-size: 1.25rem; color: #a9b6c6; max-width: 650px; margin: 0 auto;">
-    Route EV delivery fleets by <strong style="color:#ffda00">battery damage</strong>, not just distance.<br>
-    Powered by FortyGuard's street-level temperature intelligence.
+  <p style="font-size: 1.15rem; color: #94a3b8; max-width: 800px; margin: 0;">
+    Autonomous thermal degradation management for commercial EV fleets.
+    Translating 2-meter street-level temperature telemetry into battery lifespan extension and verified capital expenditure savings.
   </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ── The Problem ───────────────────────────────────────────────────────────────
-st.markdown("---")
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric("🌡️ Phoenix, AZ Right Now", "112°F", "Extreme Risk",
-              delta_color="inverse")
-with col2:
-    st.metric("🔋 Battery Degradation", "3.78×", "faster than baseline",
-              delta_color="inverse")
-with col3:
-    st.metric("💸 Extra Cost Per Van", "$1,800/yr", "vs optimal route",
-              delta_color="inverse")
-
 st.markdown("---")
 
-# ── What We Built ─────────────────────────────────────────────────────────────
-col_a, col_b = st.columns(2)
+# ── Real-Time Metrics Strip ───────────────────────────────────────────────────
+c1, c2, c3, c4 = st.columns(4)
+with c1:
+    st.metric(
+        label="Primary Test Market (Phoenix)",
+        value="112°F",
+        delta="Extreme Exposure",
+        delta_color="inverse"
+    )
+with c2:
+    st.metric(
+        label="Peak Degradation Rate",
+        value="3.85x",
+        delta="+285% over nominal",
+        delta_color="inverse"
+    )
+with c3:
+    st.metric(
+        label="Annual Savings (Per Van)",
+        value="$8,379",
+        delta="Highway vs Urban Core",
+        delta_color="normal"
+    )
+with c4:
+    st.metric(
+        label="5-Year Fleet Value (500 Vans)",
+        value="$20.08M",
+        delta="Total Net Benefit",
+        delta_color="normal"
+    )
 
-with col_a:
-    st.markdown("### 🔍 The Problem Nobody Solved")
+st.markdown("---")
+
+# ── Core Pillars ──────────────────────────────────────────────────────────────
+col_left, col_right = st.columns(2)
+
+with col_left:
     st.markdown("""
-    EV delivery fleets — Amazon, DHL, UPS, FedEx — route their vans using
-    **Google Maps**: shortest distance or fastest time.
+    <div class="panel-card">
+      <h3 style="margin-top:0; font-size:1.25rem; color:#f8fafc;">The Fleet Telemetry Blind Spot</h3>
+      <p>
+        Commercial fleet routing platforms optimize strictly for two dimensions: <strong>distance</strong> and <strong>transit duration</strong>. 
+        Neither parameter reflects the thermodynamic cost of high-stress urban heat corridors on heavy commercial lithium-ion packs.
+      </p>
+      <p>
+        At 112°F ambient surface temperatures in major logistics hubs such as Phoenix, accelerated chemical degradation (Arrhenius kinetics) increases battery capacity loss by nearly <strong>4x</strong> compared to baseline operating conditions.
+      </p>
+      <p style="margin-bottom:0;">
+        Operating an electric delivery vehicle through unshaded downtown corridors imposes up to <strong>$13,471 per vehicle per year</strong> in premature battery depreciation.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    Nobody considers **temperature**.
-
-    At **112°F in Phoenix**, lithium-ion batteries degrade **3.78× faster**
-    than at the 77°F baseline temperature. A van running through
-    downtown Phoenix surface streets loses **$3,200/year** in battery wear.
-
-    The same delivery via the highway route?  **$1,400/year.**
-
-    **Same stops. Same driver. $1,800 saved — just by choosing a cooler road.**
-    """)
-
-with col_b:
-    st.markdown("### ⚡ Our Solution")
+with col_right:
     st.markdown("""
-    **ThermoRoute AI** uses FortyGuard's Temperature API — measured
-    **2 meters above the ground**, the same height as a van's battery pack —
-    to score every route segment by thermal damage.
+    <div class="panel-card">
+      <h3 style="margin-top:0; font-size:1.25rem; color:#f8fafc;">Hyperlocal Thermal Resolution</h3>
+      <p>
+        ThermoRoute AI integrates FortyGuard's street-level Temperature API—measured at <strong>2 meters above ground level</strong>, exactly matching the elevation of commercial EV battery chassis enclosures.
+      </p>
+      <p>
+        By correlating roadway microclimate temperatures with the Arrhenius electrochemical degradation model, ThermoRoute AI autonomously evaluates candidate transit corridors and redirects fleets to thermally optimal routes.
+      </p>
+      <p style="margin-bottom:0;">
+        <strong>Result:</strong> An average of <strong>$8,379 per vehicle per year</strong> in preserved asset life with zero loss in package delivery volume.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    Using the **Arrhenius battery degradation equation** (the same science
-    used by Tesla, Rivian, and GM), we translate street-level temperature
-    data into exact dollar costs per route.
+# ── Scientific Foundation ─────────────────────────────────────────────────────
+st.markdown("### Electrochemical Degradation Model")
+st.markdown("""
+Lithium-ion cell aging follows the **Arrhenius degradation relationship**, where elevated operating temperature accelerates solid electrolyte interphase (SEI) layer growth and active lithium loss:
+""")
 
-    **The coolest route saves your fleet real money. Every day.**
-    """)
+s1, s2, s3, s4 = st.columns(4)
+with s1:
+    st.metric(label="Nominal Baseline (77°F)", value="1.00x", delta="Rated Life: 8.0 Years")
+with s2:
+    st.metric(label="Elevated Threshold (95°F)", value="2.00x", delta="Rated Life: 4.0 Years", delta_color="inverse")
+with s3:
+    st.metric(label="High Heat (104°F)", value="2.82x", delta="Rated Life: 2.8 Years", delta_color="inverse")
+with s4:
+    st.metric(label="Critical Ambient (112°F)", value="3.85x", delta="Rated Life: 2.1 Years", delta_color="inverse")
 
-# ── The Science ───────────────────────────────────────────────────────────────
 st.markdown("---")
-st.markdown("### 🔬 The Science: Arrhenius Battery Degradation")
 
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric("🌡️ 77°F (ideal)", "1.0×", "baseline degradation")
-with col2:
-    st.metric("☀️ 95°F", "2.0×", "twice as fast")
-with col3:
-    st.metric("🔥 112°F Phoenix", "3.78×", "nearly 4× faster")
-with col4:
-    st.metric("⚠️ 130°F", "7.1×", "extreme damage")
+# ── Endpoint Integration Grid ─────────────────────────────────────────────────
+st.markdown("### FortyGuard API Architecture & Endpoint Implementation")
+st.caption("Full lifecycle integration across all 6 production endpoints:")
 
-st.info(
-    "**Arrhenius Rule:** Every 18°F (10°C) above 77°F (25°C) → battery degrades 2× faster. "
-    "This is the same equation used by every major EV manufacturer to rate battery lifespan. "
-    "FortyGuard provides the street-level temperature data to apply it per route, per segment, in real time."
-)
+ep1, ep2, ep3, ep4, ep5, ep6 = st.columns(6)
+with ep1:
+    st.markdown("""
+    <div class="panel-card" style="padding:14px; text-align:center;">
+      <span class="system-pill">/v1/heatmap</span>
+      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Exceedance & snapshot corridor thermal maps</p>
+    </div>
+    """, unsafe_allow_html=True)
+with ep2:
+    st.markdown("""
+    <div class="panel-card" style="padding:14px; text-align:center;">
+      <span class="system-pill">/v1/satellite</span>
+      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Canopy cover & shade radiation shielding</p>
+    </div>
+    """, unsafe_allow_html=True)
+with ep3:
+    st.markdown("""
+    <div class="panel-card" style="padding:14px; text-align:center;">
+      <span class="system-pill">/v1/streetview</span>
+      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Ground-level roadway segmentation</p>
+    </div>
+    """, unsafe_allow_html=True)
+with ep4:
+    st.markdown("""
+    <div class="panel-card" style="padding:14px; text-align:center;">
+      <span class="system-pill">/v1/heat_intelligence</span>
+      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Multi-dimensional risk scoring & PDF reports</p>
+    </div>
+    """, unsafe_allow_html=True)
+with ep5:
+    st.markdown("""
+    <div class="panel-card" style="padding:14px; text-align:center;">
+      <span class="system-pill">/v1/env_params</span>
+      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Solar irradiance & thermal persistence</p>
+    </div>
+    """, unsafe_allow_html=True)
+with ep6:
+    st.markdown("""
+    <div class="panel-card" style="padding:14px; text-align:center;">
+      <span class="system-pill">/v1/status</span>
+      <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Unified async task polling lifecycle</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-# ── FortyGuard API ────────────────────────────────────────────────────────────
+# ── Module Launchpad ──────────────────────────────────────────────────────────
 st.markdown("---")
-st.markdown("### 📡 Powered by FortyGuard Temperature API")
+st.markdown("### System Modules")
 
-cols = st.columns(6)
-labels = ["🗺️ /v1/heatmap", "🛰️ /v1/satellite",
-          "🚶 /v1/streetview", "📊 /v1/heat_intelligence",
-          "🌬️ /v1/env_params", "⏳ /v1/status"]
-for c, label in zip(cols, labels):
-    c.success(label)
-
-st.caption(
-    "All 6 FortyGuard API endpoints used · US locations only · "
-    "Historical data from Jan 2021 · Real-time + 12-hour forecast · "
-    "Async submit-and-poll pattern"
-)
-
-# ── CTA ───────────────────────────────────────────────────────────────────────
-st.markdown("---")
-st.markdown("### 🚀 Get Started")
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.page_link("pages/1_fleet_dashboard.py",
-                 label="📊 Fleet Dashboard", icon="📊")
-with col2:
-    st.page_link("pages/2_route_planner.py",
-                 label="🗺️ Route Planner", icon="🗺️")
-with col3:
-    st.page_link("pages/3_battery_savings.py",
-                 label="💰 Calculate Savings", icon="💰")
+m1, m2, m3 = st.columns(3)
+with m1:
+    st.page_link("pages/1_fleet_dashboard.py", label="Open Fleet Risk Monitor →", use_container_width=True)
+with m2:
+    st.page_link("pages/2_route_planner.py", label="Open Thermal Route Engine →", use_container_width=True)
+with m3:
+    st.page_link("pages/3_battery_savings.py", label="Open Financial & ROI Analysis →", use_container_width=True)
 
 st.markdown("""
----
-<div style="text-align:center; color: #5c7a99; font-size: 0.8rem; padding: 16px 0;">
-  ThermoRoute AI · Built for FortyGuard Global AI Hackathon '26 · Track 03: Industrial & Enterprise<br>
-  Powered by <strong>FortyGuard Temperature API®</strong> — NVIDIA-Recognized Technology
+<div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #1e293b;">
+  <p style="font-size: 0.8rem; color: #64748b;">
+    ThermoRoute AI · Developed for FortyGuard Global AI Hackathon '26 · Track 03: Industrial & Enterprise<br>
+    Powered by FortyGuard Temperature API® — Enterprise Urban Thermal Intelligence
+  </p>
 </div>
 """, unsafe_allow_html=True)

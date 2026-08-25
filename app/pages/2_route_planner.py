@@ -1,33 +1,58 @@
 """
-Page 2 — Route Planner
-THE CORE FEATURE of ThermoRoute AI.
-Shows thermal route comparison on interactive map + cost breakdown.
-Uses FortyGuard heatmap + satellite + env_params endpoints.
+Page 2 — Thermal Route Engine
+Core spatial routing module correlating roadway segments with FortyGuard temperature data.
+Powered by FortyGuard /v1/heatmap, /v1/satellite, /v1/env_params, and /v1/streetview.
 """
 
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
 import plotly.graph_objects as go
+import pandas as pd
 import sys, os, json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from core.fortyguard_client import FortyGuardClient
 from core.route_engine import score_routes, get_city_key, CITY_DATA
 from core.battery_model import BatteryDegradationModel
-from core.cost_calculator import fleet_roi_summary
 
-st.set_page_config(page_title="Route Planner — ThermoRoute AI",
-                   page_icon="🗺️", layout="wide")
+st.set_page_config(
+    page_title="Thermal Route Engine — ThermoRoute AI",
+    layout="wide"
+)
 
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] {
-    background:linear-gradient(160deg,#04091C 0%,#060E22 50%,#091A35 100%);
-}
-[data-testid="stSidebar"] { background-color:#0d1627; }
-h1,h2,h3 { color:#ffffff !important; }
-p,li,label { color:#a9b6c6 !important; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+  [data-testid="stAppViewContainer"] {
+      background: radial-gradient(circle at 50% 0%, #0c1729 0%, #050a14 70%, #03060c 100%);
+      color: #e2e8f0;
+  }
+  [data-testid="stSidebar"] { background-color: #060b14; border-right: 1px solid #172439; }
+  [data-testid="metric-container"] {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 14px 18px;
+  }
+  .route-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 12px;
+  }
+  .badge-rec {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+      font-weight: 700;
+  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -37,73 +62,87 @@ bm = BatteryDegradationModel()
 with open(os.path.join(os.path.dirname(__file__), "../../data/ev_specs.json"), encoding="utf-8") as f:
     ev_specs = json.load(f)
 
-# ── Header ────────────────────────────────────────────────────────────────────
-st.markdown("## 🗺️ Thermal Route Planner")
-st.caption(f"FortyGuard Temperature API® · {client.mode} · US cities only")
+st.markdown("## Thermal Route Engine")
+st.caption(f"Spatial microclimate evaluation via FortyGuard Temperature API® · System Mode: {client.mode}")
+st.markdown("---")
 
-# ── Controls ──────────────────────────────────────────────────────────────────
-col1, col2, col3 = st.columns(3)
-with col1:
+# Controls
+c1, c2, c3 = st.columns(3)
+with c1:
     city_options = [f"{v['city']}, {v['state']}" for v in CITY_DATA.values()]
-    selected_city = st.selectbox("📍 Select City (US Only)", city_options)
+    selected_city = st.selectbox("Target Operating Hub (US Only)", city_options)
     city_key = get_city_key(selected_city)
-
-with col2:
+with c2:
     vehicle_key = st.selectbox(
-        "🚐 Vehicle Type",
+        "Commercial Fleet Model",
         list(ev_specs.keys()),
-        format_func=lambda k: f"{ev_specs[k]['icon']} {ev_specs[k]['name']}"
+        format_func=lambda k: f"{ev_specs[k]['name']} — {ev_specs[k]['operator']}"
     )
+with c3:
+    fleet_size = st.number_input("Fleet Operational Scale (Units)", min_value=1, max_value=250000, value=500, step=25)
 
-with col3:
-    fleet_size = st.number_input("🚐 Fleet Size", min_value=1, max_value=500000,
-                                  value=500, step=50)
-
-st.divider()
-
-# ── Score routes ──────────────────────────────────────────────────────────────
-with st.spinner("🌡️ Analysing routes with FortyGuard temperature data..."):
+# Calculate scores
+with st.spinner("Executing spatial corridor thermal analysis..."):
     result = score_routes(city_key, vehicle_key, client)
 
 routes = result["route_details"]
 city_center = result["center"]
 solar = result.get("solar_irradiance_wm2", 800)
 satellite = result.get("satellite", {})
+env_data = result.get("env_params", {})
 
-# ── Savings Hero ──────────────────────────────────────────────────────────────
 best_route = min(routes, key=lambda r: r["avg_temp_f"])
 worst_route = max(routes, key=lambda r: r["avg_temp_f"])
-best_cost = bm.annual_degradation_cost(best_route["effective_temp_f"],
-                                        vehicle_key, solar)
-worst_cost = bm.annual_degradation_cost(worst_route["effective_temp_f"],
-                                         vehicle_key, solar)
-savings_per_van = worst_cost["heat_annual_cost_usd"] - best_cost["heat_annual_cost_usd"]
+best_cost = bm.annual_degradation_cost(best_route["effective_temp_f"], vehicle_key, solar)
+worst_cost = bm.annual_degradation_cost(worst_route["effective_temp_f"], vehicle_key, solar)
+savings_per_van = max(0.0, worst_cost["heat_annual_cost_usd"] - best_cost["heat_annual_cost_usd"])
 fleet_savings = savings_per_van * fleet_size
 
-col_a, col_b, col_c, col_d = st.columns(4)
-col_a.metric("🔥 Hottest Route", f"{worst_route['avg_temp_f']:.0f}°F",
-              f"${worst_cost['heat_annual_cost_usd']:,.0f}/van/yr")
-col_b.metric("🌿 Coolest Route", f"{best_route['avg_temp_f']:.0f}°F",
-              f"${best_cost['heat_annual_cost_usd']:,.0f}/van/yr")
-col_c.metric("💰 Savings Per Van", f"${savings_per_van:,.0f}/yr",
-              f"{round(savings_per_van / worst_cost['heat_annual_cost_usd'] * 100, 0):.0f}% less damage")
-col_d.metric(f"💸 Fleet ({fleet_size:,} vans)",
-              f"${fleet_savings:,.0f}/yr", "annual battery savings")
+# Top Summary Strip
+s1, s2, s3, s4 = st.columns(4)
+with s1:
+    st.metric(
+        label="High-Stress Corridor (Worst)",
+        value=f"{worst_route['avg_temp_f']:.0f}°F",
+        delta=f"${worst_cost['heat_annual_cost_usd']:,.0f}/unit/yr",
+        delta_color="inverse"
+    )
+with s2:
+    st.metric(
+        label="Thermally Optimal Route (Best)",
+        value=f"{best_route['avg_temp_f']:.0f}°F",
+        delta=f"${best_cost['heat_annual_cost_usd']:,.0f}/unit/yr",
+        delta_color="normal"
+    )
+with s3:
+    st.metric(
+        label="Unit Capital Preservation",
+        value=f"${savings_per_van:,.0f}/yr",
+        delta=f"-{round(savings_per_van / worst_cost['heat_annual_cost_usd'] * 100, 1) if worst_cost['heat_annual_cost_usd'] > 0 else 0}% wear",
+        delta_color="normal"
+    )
+with s4:
+    st.metric(
+        label=f"Annual Fleet Value ({fleet_size} Units)",
+        value=f"${fleet_savings:,.0f}/yr",
+        delta="CapEx Avoidance",
+        delta_color="normal"
+    )
 
-st.divider()
+st.markdown("---")
 
-# ── Map ───────────────────────────────────────────────────────────────────────
-st.markdown("### 🗺️ Route Thermal Map — Street-Level FortyGuard Temperature Data")
+# Spatial Map
+st.markdown("### Spatial Corridor Telemetry & Microclimate Map")
+st.caption("Roadway segments colored by thermal exposure. FortyGuard Temperature API 2-meter resolution.")
 
-m = folium.Map(location=city_center, zoom_start=12,
-               tiles="CartoDB dark_matter")
+m = folium.Map(location=city_center, zoom_start=12, tiles="CartoDB dark_matter")
 
-# Plot each route
 for route in routes:
     latlons = [[wp["lat"], wp["lon"]] for wp in route["waypoints"]]
     color = route["color"]
-    weight = 5 if route == best_route else 3
-    dash = None if route == best_route else "10 5"
+    is_rec = (route == best_route)
+    weight = 5 if is_rec else 3
+    dash = None if is_rec else "6 4"
 
     folium.PolyLine(
         latlons,
@@ -111,16 +150,14 @@ for route in routes:
         weight=weight,
         opacity=0.85,
         dash_array=dash,
-        tooltip=f"{route['name']} | Avg {route['avg_temp_f']:.0f}°F | {route['risk_level']}"
+        tooltip=f"{route['name']} | Average: {route['avg_temp_f']:.0f}°F"
     ).add_to(m)
 
-    # Temp markers along route
-    for i, (wp, temp) in enumerate(
-            zip(route["waypoints"], route.get("segment_temps", []))):
-        if i % 3 == 0:  # every 3rd waypoint
+    for i, (wp, temp) in enumerate(zip(route["waypoints"], route.get("segment_temps", []))):
+        if i % 3 == 0:
             folium.CircleMarker(
                 [wp["lat"], wp["lon"]],
-                radius=6,
+                radius=5,
                 color=color,
                 fill=True,
                 fill_color=color,
@@ -128,106 +165,88 @@ for route in routes:
                 tooltip=f"{wp['name']}: {temp:.0f}°F"
             ).add_to(m)
 
-# Start/End markers
-start = routes[0]["waypoints"][0]
-end = routes[0]["waypoints"][-1]
-folium.Marker([start["lat"], start["lon"]],
-              popup="📦 Distribution Center",
-              icon=folium.Icon(color="blue", icon="home")).add_to(m)
-folium.Marker([end["lat"], end["lon"]],
-              popup="📍 Delivery Zone",
-              icon=folium.Icon(color="red", icon="flag")).add_to(m)
+# Origin / Destination
+start_pt = routes[0]["waypoints"][0]
+end_pt = routes[0]["waypoints"][-1]
+folium.Marker([start_pt["lat"], start_pt["lon"]], popup="Logistics Hub / Depot",
+              icon=folium.Icon(color="blue", icon="info-sign")).add_to(m)
+folium.Marker([end_pt["lat"], end_pt["lon"]], popup="Delivery Delivery Corridor",
+              icon=folium.Icon(color="red", icon="ok-sign")).add_to(m)
 
-st_folium(m, width="100%", height=480)
+st_folium(m, width="100%", height=460)
 
-# ── Route Legend ──────────────────────────────────────────────────────────────
-leg_cols = st.columns(len(routes))
-for col, route in zip(leg_cols, routes):
-    r_cost = bm.annual_degradation_cost(route["effective_temp_f"], vehicle_key, solar)
+# Corridor Breakdown Cards
+st.markdown("### Candidate Corridor Assessment")
+r_cols = st.columns(len(routes))
+
+for col, route in zip(r_cols, routes):
+    rc = bm.annual_degradation_cost(route["effective_temp_f"], vehicle_key, solar)
+    is_rec = (route == best_route)
+    status_color = route["color"]
+    
     with col:
-        is_best = (route == best_route)
         st.markdown(f"""
-<div style="background:rgba(23,105,176,0.1);border:2px solid {route['color']};
-     border-radius:10px;padding:12px;text-align:center;
-     {'box-shadow:0 0 12px ' + route['color'] + '88;' if is_best else ''}">
-  {'<div style="color:#22c55e;font-weight:700;font-size:0.75rem;">✅ RECOMMENDED</div>' if is_best else ''}
-  <div style="color:#fff;font-weight:700;">{route['name']}</div>
-  <div style="color:{route['color']};font-size:1.6rem;font-weight:900;">{route['avg_temp_f']:.0f}°F</div>
-  <div style="color:#a9b6c6;font-size:0.8rem;">{route['distance_miles']} mi · {route['duration_minutes']} min</div>
-  <div style="color:#a9b6c6;font-size:0.8rem;">🌿 {route['shade_pct']}% shade</div>
-  <hr style="border-color:#1e3a5f;margin:8px 0;">
-  <div style="color:#ffda00;font-weight:700;">{r_cost['degradation_factor']:.2f}× degradation</div>
-  <div style="color:#a9b6c6;font-size:0.85rem;">${r_cost['heat_annual_cost_usd']:,.0f}/van/yr</div>
-</div>
+        <div class="route-card" style="border-top: 3px solid {status_color};">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-weight:700; font-size:0.95rem; color:#f8fafc;">{route['name'].split('—')[0].strip()}</span>
+            {'<span class="badge-rec">RECOMMENDED</span>' if is_rec else ''}
+          </div>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:1.8rem; font-weight:700; color:{status_color}; margin: 4px 0;">
+            {route['avg_temp_f']:.0f}°F
+          </div>
+          <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">
+            Distance: {route['distance_miles']} mi · Transit: {route['duration_minutes']} min<br>
+            Canopy Shade: {route['shade_pct']}%
+          </p>
+          <div style="border-top:1px solid #1e293b; padding-top:8px;">
+            <div style="font-family:'JetBrains Mono', monospace; font-size:0.85rem; color:#38bdf8; font-weight:600;">
+              {rc['degradation_factor']:.2f}x Degradation Rate
+            </div>
+            <div style="font-size:0.8rem; color:#94a3b8; margin-top:2px;">
+              Annual Pack Cost: ${rc['heat_annual_cost_usd']:,.0f}/unit
+            </div>
+          </div>
+        </div>
         """, unsafe_allow_html=True)
 
-st.divider()
+st.markdown("---")
 
-# ── Route Comparison Table ────────────────────────────────────────────────────
-st.markdown("### 📊 Route Comparison — Annual Cost Per Van")
-
-import pandas as pd
-rows = []
-for route in routes:
-    rc = bm.annual_degradation_cost(route["effective_temp_f"], vehicle_key, solar)
-    rows.append({
-        "Route": route["name"],
-        "Avg Temp (°F)": f"{route['avg_temp_f']:.0f}",
-        "Shade %": f"{route['shade_pct']}%",
-        "Degradation": f"{rc['degradation_factor']:.2f}×",
-        "Annual Cost/Van": f"${rc['heat_annual_cost_usd']:,.0f}",
-        "Extra vs Ideal": f"${rc['extra_annual_cost_usd']:,.0f}",
-        "Risk Level": route["risk_level"]
-    })
-
-df = pd.DataFrame(rows)
-st.dataframe(df, use_container_width=True, hide_index=True)
-
-# ── Segment Temperature Chart ─────────────────────────────────────────────────
-st.markdown("### 🌡️ Temperature Per Road Segment")
-fig = go.Figure()
+# Segment Telemetry Plot
+st.markdown("#### Point-by-Point Roadway Temperature Profile")
+fig_seg = go.Figure()
 for route in routes:
     segs = route.get("segment_temps", [route["avg_temp_f"]] * 5)
-    fig.add_trace(go.Scatter(
+    fig_seg.add_trace(go.Scatter(
         x=list(range(1, len(segs) + 1)),
         y=segs,
         mode="lines+markers",
         name=route["name"].split("—")[0].strip(),
         line=dict(color=route["color"], width=2),
-        marker=dict(size=7)
+        marker=dict(size=6)
     ))
-fig.add_hline(y=95, line_dash="dot", line_color="#eab308",
-               annotation_text="⚠️ High Risk (95°F)")
-fig.add_hline(y=108, line_dash="dot", line_color="#ef4444",
-               annotation_text="🔴 Critical (108°F)")
-fig.update_layout(
+fig_seg.add_hline(y=95, line_dash="dash", line_color="#eab308", annotation_text="Elevated Exposure (95°F)")
+fig_seg.add_hline(y=108, line_dash="dash", line_color="#ef4444", annotation_text="Critical Stress (108°F)")
+fig_seg.update_layout(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font_color="#a9b6c6",
-    xaxis_title="Route Segment #",
-    yaxis_title="Temperature (°F)",
-    legend=dict(bgcolor="rgba(0,0,0,0)"),
-    height=350
+    font=dict(family="Inter", color="#94a3b8"),
+    xaxis=dict(title="Roadway Waypoint Index", gridcolor="#1e293b"),
+    yaxis=dict(title="Temperature (°F)", gridcolor="#1e293b"),
+    height=320,
+    margin=dict(l=20, r=20, t=20, b=20)
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig_seg, use_container_width=True)
 
-# ── Environmental Data ────────────────────────────────────────────────────────
-st.divider()
-st.markdown("### 🌬️ FortyGuard Environmental Parameters")
-env = result.get("env_params", {})
-e1, e2, e3, e4 = st.columns(4)
-e1.metric("🌡️ Heat Index", f"{env.get('heat_index_f', 118):.0f}°F")
-e2.metric("☀️ Solar Irradiance", f"{env.get('solar_irradiance_wm2', 950):.0f} W/m²")
-e3.metric("💧 Humidity", f"{env.get('humidity_pct', 14):.0f}%")
-e4.metric("⏱️ Heat Persistence", f"{env.get('persistence_hours', 9.3):.1f} hrs")
-
-sat = result.get("satellite", {})
-s1, s2, s3 = st.columns(3)
-s1.metric("🌿 Vegetation Cover", f"{sat.get('vegetation_pct', 8.2):.1f}%",
-           "shade potential")
-s2.metric("🏢 Building Cover", f"{sat.get('building_pct', 43.1):.1f}%",
-           "radiated heat source")
-s3.metric("🛣️ Pavement Cover", f"{sat.get('pavement_pct', 38.7):.1f}%",
-           "heat absorption")
-
-st.caption("⚡ ThermoRoute AI · FortyGuard Hackathon '26 · Track 03 Industrial & Enterprise")
+# FortyGuard Environmental Telemetry Strip
+st.markdown("### Regional Environmental Telemetry (/v1/env_params & /v1/satellite)")
+e1, e2, e3, e4, e5 = st.columns(5)
+with e1:
+    st.metric(label="Heat Index", value=f"{env_data.get('heat_index_f', 118):.0f}°F")
+with e2:
+    st.metric(label="Solar Irradiance", value=f"{env_data.get('solar_irradiance_wm2', 950):.0f} W/m²")
+with e3:
+    st.metric(label="Thermal Persistence", value=f"{env_data.get('persistence_hours', 9.3):.1f}h")
+with e4:
+    st.metric(label="Canopy Coverage", value=f"{satellite.get('vegetation_pct', 8.2):.1f}%")
+with e5:
+    st.metric(label="Surface Pavement", value=f"{satellite.get('pavement_pct', 38.7):.1f}%")

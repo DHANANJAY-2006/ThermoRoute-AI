@@ -168,13 +168,13 @@ class BatteryDegradationModel:
 
     def _risk_level(self, temp_f: float) -> str:
         if temp_f >= 110:
-            return "🔴 Critical"
+            return "CRITICAL"
         elif temp_f >= 100:
-            return "🟠 High"
+            return "ELEVATED"
         elif temp_f >= 90:
-            return "🟡 Moderate"
+            return "MODERATE"
         else:
-            return "🟢 Low"
+            return "NOMINAL"
 
     def risk_color(self, temp_f: float) -> str:
         if temp_f >= 110:

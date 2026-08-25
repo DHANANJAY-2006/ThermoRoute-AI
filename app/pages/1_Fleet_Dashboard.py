@@ -64,18 +64,15 @@ st.markdown("""
 
 with st.sidebar:
     st.markdown("""
-    <div class="sidebar-brand-box">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span style="font-weight:800; font-size:1.05rem; letter-spacing:0.03em; color:#ffffff;">THERMOROUTE<span style="color:#38bdf8;">.AI</span></span>
-        <span style="font-family:'JetBrains Mono', monospace; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:3px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">v1.0 PRO</span>
+    <div style="padding: 4px 0 14px 0; border-bottom: 1px solid #172439; margin-bottom: 14px;">
+      <div style="font-weight:800; font-size:1.15rem; letter-spacing:-0.02em; color:#ffffff; margin-bottom:2px;">
+        ThermoRoute <span style="color:#38bdf8; font-weight:700;">AI</span>
       </div>
-      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:10px;">Hyperlocal Fleet Thermal Intelligence</div>
-      <div style="display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:#4ade80; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); padding:4px 8px; border-radius:4px; margin-bottom:8px;">
-        <span style="width:6px; height:6px; border-radius:50%; background:#4ade80; box-shadow:0 0 6px #4ade80; display:inline-block;"></span>
-        <span>FORTYGUARD API // ACTIVE</span>
+      <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">
+        FortyGuard Temperature API®
       </div>
-      <div style="font-family:'JetBrains Mono', monospace; font-size:0.66rem; color:#64748b; border-top:1px solid #1e293b; padding-top:6px;">
-        TRACK 03: INDUSTRIAL & ENTERPRISE
+      <div style="display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.65rem; color:#38bdf8; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); padding:2px 6px; border-radius:4px;">
+        <span>TRACK 03 // ENTERPRISE</span>
       </div>
     </div>
     """, unsafe_allow_html=True)

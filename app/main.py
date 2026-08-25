@@ -33,7 +33,7 @@ st.markdown("""
   [data-testid="stSidebarNav"] span {
       text-transform: capitalize !important;
       font-weight: 500 !important;
-      font-size: 0.95rem !important;
+      font-size: 0.92rem !important;
   }
 
   /* Deep obsidian/navy background */
@@ -47,46 +47,56 @@ st.markdown("""
       border-right: 1px solid #172439;
   }
 
-  /* Sidebar brand card */
-  .sidebar-brand-box {
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(6, 11, 20, 0.9) 100%);
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  /* Unified Metrics Grid */
+  .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin: 12px 0 24px 0;
   }
-
-  /* Metric cards */
-  [data-testid="metric-container"] {
+  .metric-card {
       background: rgba(15, 23, 42, 0.65);
       border: 1px solid #1e293b;
       border-radius: 8px;
       padding: 16px 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 108px;
+      box-sizing: border-box;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
-  [data-testid="metric-container"] label {
-      font-size: 0.75rem !important;
+  .metric-card-highlight {
+      background: rgba(14, 165, 233, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 16px rgba(14, 165, 233, 0.08);
+  }
+  .metric-label {
+      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #94a3b8 !important;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
       font-weight: 600;
+      margin-bottom: 4px;
   }
-  [data-testid="metric-container"] [data-testid="stMetricValue"] {
+  .metric-value {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.75rem !important;
+      font-size: 1.75rem;
       font-weight: 700;
       color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 4px;
   }
-
-  /* Highlight card */
-  .highlight-metric-card {
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.16) 0%, rgba(15, 23, 42, 0.85) 100%);
-      border: 1px solid rgba(56, 189, 248, 0.5);
-      border-radius: 8px;
-      padding: 15px 20px;
-      box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+  .metric-value-highlight {
+      color: #38bdf8;
   }
+  .metric-delta {
+      font-size: 0.78rem;
+      font-weight: 500;
+  }
+  .delta-normal { color: #4ade80; }
+  .delta-inverse { color: #f87171; }
+  .delta-highlight { color: #38bdf8; font-weight: 600; }
 
   /* Headers */
   h1 {
@@ -110,20 +120,20 @@ st.markdown("""
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 4px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       background: rgba(14, 165, 233, 0.1);
-      border: 1px solid rgba(14, 165, 233, 0.3);
+      border: 1px solid rgba(14, 165, 233, 0.25);
       color: #38bdf8;
   }
   .system-pill {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       padding: 2px 8px;
       border-radius: 3px;
       background: #0f172a;
@@ -145,33 +155,30 @@ st.markdown("""
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-    <div class="sidebar-brand-box">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span style="font-weight:800; font-size:1.05rem; letter-spacing:0.03em; color:#ffffff;">THERMOROUTE<span style="color:#38bdf8;">.AI</span></span>
-        <span style="font-family:'JetBrains Mono', monospace; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:3px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">v1.0 PRO</span>
+    <div style="padding: 4px 0 14px 0; border-bottom: 1px solid #172439; margin-bottom: 14px;">
+      <div style="font-weight:800; font-size:1.15rem; letter-spacing:-0.02em; color:#ffffff; margin-bottom:2px;">
+        ThermoRoute <span style="color:#38bdf8; font-weight:700;">AI</span>
       </div>
-      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:10px;">Hyperlocal Fleet Thermal Intelligence</div>
-      <div style="display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:#4ade80; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); padding:4px 8px; border-radius:4px; margin-bottom:8px;">
-        <span style="width:6px; height:6px; border-radius:50%; background:#4ade80; box-shadow:0 0 6px #4ade80; display:inline-block;"></span>
-        <span>FORTYGUARD API // ACTIVE</span>
+      <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">
+        FortyGuard Temperature API®
       </div>
-      <div style="font-family:'JetBrains Mono', monospace; font-size:0.66rem; color:#64748b; border-top:1px solid #1e293b; padding-top:6px;">
-        TRACK 03: INDUSTRIAL & ENTERPRISE
+      <div style="display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.65rem; color:#38bdf8; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); padding:2px 6px; border-radius:4px;">
+        <span>TRACK 03 // ENTERPRISE</span>
       </div>
     </div>
     """, unsafe_allow_html=True)
 
 # ── Hero Section ──────────────────────────────────────────────────────────────
 st.markdown("""
-<div style="padding: 18px 0 16px 0;">
-  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+<div style="padding: 12px 0 14px 0;">
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
     <span class="status-badge">TRACK 03: INDUSTRIAL & ENTERPRISE</span>
     <span class="system-pill">HYPERLOCAL THERMAL INTELLIGENCE</span>
   </div>
-  <h1 style="font-size: 2.75rem; margin: 0 0 10px 0;">
+  <h1 style="font-size: 2.6rem; margin: 0 0 8px 0;">
     ThermoRoute AI
   </h1>
-  <p style="font-size: 1.15rem; color: #94a3b8; max-width: 820px; margin: 0;">
+  <p style="font-size: 1.1rem; color: #94a3b8; max-width: 820px; margin: 0;">
     Autonomous thermal degradation management for commercial EV fleets.
     Translating 2-meter street-level temperature telemetry into battery lifespan extension and verified capital expenditure savings.
   </p>
@@ -180,37 +187,31 @@ st.markdown("""
 
 st.markdown("---")
 
-# ── Real-Time Metrics Strip ───────────────────────────────────────────────────
-c1, c2, c3, c4 = st.columns(4)
-with c1:
-    st.metric(
-        label="Primary Test Corridor (Phoenix)",
-        value="111.4°F",
-        delta="Urban Core Peak Exposure",
-        delta_color="inverse"
-    )
-with c2:
-    st.metric(
-        label="Peak Degradation Rate",
-        value="4.20x",
-        delta="NMC/LFP SEI Growth",
-        delta_color="inverse"
-    )
-with c3:
-    st.metric(
-        label="Unit CapEx Savings",
-        value="$6,853",
-        delta="Highway vs Surface Grid",
-        delta_color="normal"
-    )
-with c4:
-    st.markdown("""
-    <div class="highlight-metric-card">
-      <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#38bdf8; font-weight:700;">5-Year Fleet Value (500 Vans)</div>
-      <div style="font-family:'JetBrains Mono', monospace; font-size:1.85rem; font-weight:800; color:#ffffff; margin:2px 0;">$16.26M</div>
-      <div style="font-size:0.8rem; color:#4ade80; font-weight:600;">▲ Net Financial Benefit</div>
-    </div>
-    """, unsafe_allow_html=True)
+# ── Unified Real-Time Metrics Strip ───────────────────────────────────────────
+st.markdown("""
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-label">Primary Test Corridor</div>
+    <div class="metric-value">111.4°F</div>
+    <div class="metric-delta delta-inverse">Urban Core Peak Exposure</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Peak Degradation Rate</div>
+    <div class="metric-value">4.20x</div>
+    <div class="metric-delta delta-inverse">NMC/LFP SEI Growth</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Unit CapEx Savings</div>
+    <div class="metric-value">$6,853</div>
+    <div class="metric-delta delta-normal">Highway vs Surface Grid</div>
+  </div>
+  <div class="metric-card metric-card-highlight">
+    <div class="metric-label">5-Year Fleet Value (500 Vans)</div>
+    <div class="metric-value metric-value-highlight">$16.26M</div>
+    <div class="metric-delta delta-highlight">Net Financial Benefit</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("---")
 

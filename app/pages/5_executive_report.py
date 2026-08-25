@@ -42,13 +42,6 @@ st.markdown("""
       padding: 24px;
       margin-bottom: 16px;
   }
-  .status-pill {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 3px;
-      font-weight: 700;
-  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -83,11 +76,9 @@ if st.button("Generate Executive Brief", type="primary", use_container_width=Tru
         heat_intel = client.get_heat_intelligence(f"{result['center'][0]},{result['center'][1]}")
 
     routes = result["route_details"]
-    best_route = min(routes, key=lambda r: r["avg_temp_f"])
-    worst_route = max(routes, key=lambda r: r["avg_temp_f"])
-    best_cost = bm.annual_degradation_cost(best_route["effective_temp_f"], vehicle_key)
-    worst_cost = bm.annual_degradation_cost(worst_route["effective_temp_f"], vehicle_key)
-    savings_per_van = max(0.0, worst_cost["heat_annual_cost_usd"] - best_cost["heat_annual_cost_usd"])
+    best_route = min(routes, key=lambda r: r["annual_cost_usd"])
+    worst_route = max(routes, key=lambda r: r["annual_cost_usd"])
+    savings_per_van = max(0.0, worst_route["annual_cost_usd"] - best_route["annual_cost_usd"])
     roi = fleet_roi_summary(savings_per_van, fleet_size)
     env = result.get("env_params", {})
     sat = result.get("satellite", {})
@@ -111,7 +102,7 @@ if st.button("Generate Executive Brief", type="primary", use_container_width=Tru
     st.markdown(f"""
     | Parameter | Telemetry Value | Measurement Source |
     | :--- | :--- | :--- |
-    | **Ambient Surface Temp** | {worst_route['avg_temp_f']:.0f}°F (Peak Unmanaged Corridor) | FortyGuard /v1/heatmap · 2m Elevation |
+    | **Ambient Surface Temp** | {worst_route['avg_temp_f']:.1f}°F (Peak Exposure Corridor) | FortyGuard /v1/heatmap · 2m Elevation |
     | **Heat Index** | {env.get('heat_index_f', 118):.0f}°F | FortyGuard /v1/env_params |
     | **Direct Solar Irradiance** | {env.get('solar_irradiance_wm2', 950):.0f} W/m² | FortyGuard /v1/env_params |
     | **Thermal Persistence Duration** | {env.get('persistence_hours', 9.3):.1f} Continuous Hours | FortyGuard /v1/env_params · Persistence Layer |
@@ -123,8 +114,8 @@ if st.button("Generate Executive Brief", type="primary", use_container_width=Tru
     st.markdown(f"""
     | Transit Corridor | Mean Temperature | Degradation Rate | Annual Battery Depreciation |
     | :--- | :--- | :--- | :--- |
-    | **{worst_route['name']}** (Unmanaged Baseline) | {worst_route['avg_temp_f']:.0f}°F | {worst_cost['degradation_factor']:.2f}x | ${worst_cost['heat_annual_cost_usd']:,.0f} / unit / yr |
-    | **{best_route['name']}** (Thermally Managed) | {best_route['avg_temp_f']:.0f}°F | {best_cost['degradation_factor']:.2f}x | ${best_cost['heat_annual_cost_usd']:,.0f} / unit / yr |
+    | **{worst_route['name']}** (Unmanaged Baseline) | {worst_route['avg_temp_f']:.1f}°F | {worst_route['degradation_factor']:.2f}x | ${worst_route['annual_cost_usd']:,.0f} / unit / yr |
+    | **{best_route['name']}** (Thermally Managed) | {best_route['avg_temp_f']:.1f}°F | {best_route['degradation_factor']:.2f}x | ${best_route['annual_cost_usd']:,.0f} / unit / yr |
     | **Net Annual Unit Benefit** | — | — | **+${savings_per_van:,.0f} / unit / yr** |
     """)
 
@@ -170,8 +161,8 @@ if st.button("Generate Executive Brief", type="primary", use_container_width=Tru
     pdf.cell(0, 9, "Mandated Operational Protocol", ln=True)
     pdf.set_font("Helvetica", "", 10)
     pdf.multi_cell(0, 6,
-        f"Reroute {fleet_size:,} active units from {worst_route['name']} ({worst_route['avg_temp_f']:.0f}F average) "
-        f"to {best_route['name']} ({best_route['avg_temp_f']:.0f}F average). "
+        f"Reroute {fleet_size:,} active units from {worst_route['name']} ({worst_route['avg_temp_f']:.1f}F average) "
+        f"to {best_route['name']} ({best_route['avg_temp_f']:.1f}F average). "
         f"Projected fleet-wide asset preservation value: ${roi['total_annual_savings_usd']:,.0f} annually."
     )
 

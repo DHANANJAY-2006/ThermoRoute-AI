@@ -5,81 +5,66 @@
     "center": [33.4484, -112.0740],
     "routes": {
       "Route_A_Downtown": {
-        "name": "Route A — Downtown Surface Streets",
-        "description": "Through dense downtown Phoenix, surface streets, minimal shade",
-        "distance_miles": 8.2,
-        "duration_minutes": 34,
+        "name": "Route A — Central Urban Core (Van Buren / 7th St)",
+        "description": "Transit through dense downtown Phoenix surface grid, unshaded asphalt canyon",
+        "distance_miles": 8.4,
+        "duration_minutes": 36,
         "color": "#ef4444",
         "risk_level": "Critical",
         "waypoints": [
-          {"lat": 33.4484, "lon": -112.0740, "name": "Distribution Center"},
-          {"lat": 33.4521, "lon": -112.0698, "name": "Washington St"},
-          {"lat": 33.4578, "lon": -112.0672, "name": "Jefferson St"},
-          {"lat": 33.4634, "lon": -112.0645, "name": "Van Buren St"},
-          {"lat": 33.4689, "lon": -112.0612, "name": "McDowell Rd"},
-          {"lat": 33.4734, "lon": -112.0579, "name": "Thomas Rd"},
-          {"lat": 33.4782, "lon": -112.0541, "name": "Indian School Rd"},
-          {"lat": 33.4834, "lon": -112.0503, "name": "Camelback Rd"},
-          {"lat": 33.4889, "lon": -112.0467, "name": "Missouri Ave"},
-          {"lat": 33.4921, "lon": -112.0432, "name": "Glendale Ave"},
-          {"lat": 33.4956, "lon": -112.0398, "name": "Northern Ave"},
-          {"lat": 33.4984, "lon": -112.0356, "name": "Delivery Zone"}
+          {"lat": 33.4352, "lon": -112.0102, "name": "Sky Harbor Logistics Center"},
+          {"lat": 33.4421, "lon": -112.0354, "name": "E Washington St Corridor"},
+          {"lat": 33.4484, "lon": -112.0645, "name": "7th St & Van Buren St"},
+          {"lat": 33.4532, "lon": -112.0740, "name": "Central Ave & Roosevelt St"},
+          {"lat": 33.4658, "lon": -112.0738, "name": "N Central Ave & McDowell Rd"},
+          {"lat": 33.4795, "lon": -112.0735, "name": "Indian School Rd Junction"},
+          {"lat": 33.4935, "lon": -112.0730, "name": "N Central Ave & Glendale Ave"},
+          {"lat": 33.5102, "lon": -112.0728, "name": "Dunlap Ave Delivery Hub"}
         ],
-        "segment_temps_f": [108, 110, 112, 114, 113, 112, 111, 110, 112, 113, 111, 109],
-        "avg_temp_f": 111.3,
-        "shade_pct": 8,
-        "solar_irradiance": 950
+        "segment_temps_f": [109.5, 111.0, 113.5, 114.0, 112.8, 111.5, 110.2, 108.5],
+        "avg_temp_f": 111.4,
+        "shade_pct": 7.5,
+        "solar_irradiance": 960
       },
       "Route_B_Mixed": {
-        "name": "Route B — Mixed Arterial Roads",
-        "description": "Mix of arterial roads with some wider streets and partial shade",
-        "distance_miles": 9.1,
-        "duration_minutes": 38,
+        "name": "Route B — Mid-Town Arterial (19th Ave Corridor)",
+        "description": "Commercial arterial transit with moderate road width and partial canopy",
+        "distance_miles": 9.2,
+        "duration_minutes": 32,
         "color": "#f97316",
         "risk_level": "High",
         "waypoints": [
-          {"lat": 33.4484, "lon": -112.0740, "name": "Distribution Center"},
-          {"lat": 33.4498, "lon": -112.0810, "name": "7th Ave"},
-          {"lat": 33.4534, "lon": -112.0872, "name": "19th Ave"},
-          {"lat": 33.4589, "lon": -112.0934, "name": "35th Ave"},
-          {"lat": 33.4645, "lon": -112.0978, "name": "43rd Ave"},
-          {"lat": 33.4723, "lon": -112.0921, "name": "Camelback & 43rd"},
-          {"lat": 33.4789, "lon": -112.0845, "name": "Camelback & 27th"},
-          {"lat": 33.4834, "lon": -112.0756, "name": "Camelback & 7th"},
-          {"lat": 33.4867, "lon": -112.0678, "name": "Missouri & Central"},
-          {"lat": 33.4912, "lon": -112.0589, "name": "Glendale & 7th St"},
-          {"lat": 33.4945, "lon": -112.0501, "name": "Northern & 7th St"},
-          {"lat": 33.4984, "lon": -112.0356, "name": "Delivery Zone"}
+          {"lat": 33.4352, "lon": -112.0102, "name": "Sky Harbor Logistics Center"},
+          {"lat": 33.4350, "lon": -112.0501, "name": "Buckeye Rd & 7th Ave"},
+          {"lat": 33.4484, "lon": -112.0998, "name": "S 19th Ave & Jefferson St"},
+          {"lat": 33.4658, "lon": -112.1001, "name": "N 19th Ave & McDowell Rd"},
+          {"lat": 33.4795, "lon": -112.1005, "name": "N 19th Ave & Indian School"},
+          {"lat": 33.4935, "lon": -112.1010, "name": "N 19th Ave & Glendale Ave"},
+          {"lat": 33.5102, "lon": -112.0728, "name": "Dunlap Ave Delivery Hub"}
         ],
-        "segment_temps_f": [105, 104, 106, 108, 107, 105, 103, 104, 106, 105, 103, 102],
-        "avg_temp_f": 104.8,
-        "shade_pct": 19,
-        "solar_irradiance": 820
+        "segment_temps_f": [106.0, 105.5, 107.2, 106.0, 104.5, 103.8, 102.5],
+        "avg_temp_f": 105.1,
+        "shade_pct": 18.0,
+        "solar_irradiance": 840
       },
       "Route_C_Highway": {
-        "name": "Route C — Loop 101 Highway",
-        "description": "Via Loop 101 freeway — open air, higher speeds, less radiated heat from buildings",
-        "distance_miles": 10.4,
-        "duration_minutes": 31,
+        "name": "Route C — I-10 / Loop 101 Freeway Corridor",
+        "description": "High-velocity freeway bypass with open airflow and reduced pavement heat reflection",
+        "distance_miles": 11.2,
+        "duration_minutes": 27,
         "color": "#22c55e",
         "risk_level": "Moderate",
         "waypoints": [
-          {"lat": 33.4484, "lon": -112.0740, "name": "Distribution Center"},
-          {"lat": 33.4421, "lon": -112.0812, "name": "I-10 On-ramp"},
-          {"lat": 33.4378, "lon": -112.0934, "name": "I-10 Westbound"},
-          {"lat": 33.4356, "lon": -112.1089, "name": "Loop 101 Junction"},
-          {"lat": 33.4412, "lon": -112.1234, "name": "Loop 101 North"},
-          {"lat": 33.4567, "lon": -112.1312, "name": "Camelback Exit"},
-          {"lat": 33.4712, "lon": -112.1267, "name": "Camelback West"},
-          {"lat": 33.4823, "lon": -112.1134, "name": "Camelback & 51st"},
-          {"lat": 33.4867, "lon": -112.0945, "name": "Camelback & 35th"},
-          {"lat": 33.4912, "lon": -112.0756, "name": "Glendale & 19th"},
-          {"lat": 33.4956, "lon": -112.0534, "name": "Northern Residential"},
-          {"lat": 33.4984, "lon": -112.0356, "name": "Delivery Zone"}
+          {"lat": 33.4352, "lon": -112.0102, "name": "Sky Harbor Logistics Center"},
+          {"lat": 33.4285, "lon": -112.0450, "name": "I-10 West Papago Freeway"},
+          {"lat": 33.4350, "lon": -112.1150, "name": "I-10 / Loop 202 Interchange"},
+          {"lat": 33.4658, "lon": -112.1550, "name": "I-10 & 51st Ave"},
+          {"lat": 33.4935, "lon": -112.1520, "name": "51st Ave Northbound Bypass"},
+          {"lat": 33.5102, "lon": -112.0728, "name": "Dunlap Ave Delivery Hub"}
         ],
-        "segment_temps_f": [99, 97, 95, 94, 96, 98, 97, 95, 94, 96, 95, 93],
-        "avg_temp_f": 95.8,
-        "shade_pct": 32,
+        "segment_temps_f": [98.5, 96.0, 95.2, 96.5, 95.0, 94.0],
+        "avg_temp_f": 95.9,
+        "shade_pct": 34.0,
         "solar_irradiance": 710
       }
     }
@@ -90,45 +75,61 @@
     "center": [36.1699, -115.1398],
     "routes": {
       "Route_A_Strip": {
-        "name": "Route A — Las Vegas Strip",
-        "description": "Through the Strip — dense development, radiated heat from buildings",
-        "distance_miles": 7.8,
-        "duration_minutes": 42,
+        "name": "Route A — Las Vegas Blvd Commercial Core",
+        "description": "High thermal mass commercial corridor with extreme building heat radiation",
+        "distance_miles": 8.1,
+        "duration_minutes": 38,
         "color": "#ef4444",
         "risk_level": "Critical",
         "waypoints": [
-          {"lat": 36.1699, "lon": -115.1398, "name": "Distribution Hub"},
-          {"lat": 36.1634, "lon": -115.1445, "name": "Las Vegas Blvd S"},
-          {"lat": 36.1567, "lon": -115.1512, "name": "Tropicana Ave"},
-          {"lat": 36.1489, "lon": -115.1578, "name": "Flamingo Rd"},
-          {"lat": 36.1401, "lon": -115.1623, "name": "Spring Mountain Rd"},
-          {"lat": 36.1334, "lon": -115.1601, "name": "Desert Inn Rd"},
-          {"lat": 36.1267, "lon": -115.1567, "name": "Sands Ave"},
-          {"lat": 36.1984, "lon": -115.0356, "name": "Delivery Zone"}
+          {"lat": 36.0840, "lon": -115.1537, "name": "McCarran Logistics Depot"},
+          {"lat": 36.1012, "lon": -115.1725, "name": "Las Vegas Blvd & Tropicana"},
+          {"lat": 36.1165, "lon": -115.1730, "name": "Flamingo Rd Junction"},
+          {"lat": 36.1310, "lon": -115.1650, "name": "Sands Ave Corridor"},
+          {"lat": 36.1480, "lon": -115.1520, "name": "Sahara Ave Crossing"},
+          {"lat": 36.1699, "lon": -115.1398, "name": "Downtown Terminal"}
         ],
-        "segment_temps_f": [107, 109, 110, 108, 107, 109, 108, 106],
-        "avg_temp_f": 108.0,
-        "shade_pct": 6,
+        "segment_temps_f": [106.5, 109.0, 110.2, 108.5, 107.0, 106.0],
+        "avg_temp_f": 107.9,
+        "shade_pct": 6.0,
         "solar_irradiance": 980
       },
+      "Route_B_Mixed": {
+        "name": "Route B — Eastern Ave Corridor",
+        "description": "Secondary arterial route through mixed commercial/residential zoning",
+        "distance_miles": 8.9,
+        "duration_minutes": 31,
+        "color": "#f97316",
+        "risk_level": "High",
+        "waypoints": [
+          {"lat": 36.0840, "lon": -115.1537, "name": "McCarran Logistics Depot"},
+          {"lat": 36.1012, "lon": -115.1180, "name": "Eastern Ave & Russell Rd"},
+          {"lat": 36.1265, "lon": -115.1185, "name": "Eastern Ave & Desert Inn"},
+          {"lat": 36.1480, "lon": -115.1190, "name": "Eastern Ave & Charleston"},
+          {"lat": 36.1699, "lon": -115.1398, "name": "Downtown Terminal"}
+        ],
+        "segment_temps_f": [103.0, 104.2, 103.5, 102.0, 101.5],
+        "avg_temp_f": 102.8,
+        "shade_pct": 17.5,
+        "solar_irradiance": 850
+      },
       "Route_C_Freeway": {
-        "name": "Route C — I-15 Freeway",
-        "description": "Via I-15 freeway bypass — reduced urban heat island effect",
-        "distance_miles": 9.3,
-        "duration_minutes": 28,
+        "name": "Route C — I-15 North Expressway Bypass",
+        "description": "Interstate 15 expressway with elevated convective airflow",
+        "distance_miles": 9.8,
+        "duration_minutes": 24,
         "color": "#22c55e",
         "risk_level": "Moderate",
         "waypoints": [
-          {"lat": 36.1699, "lon": -115.1398, "name": "Distribution Hub"},
-          {"lat": 36.1634, "lon": -115.1234, "name": "I-15 North"},
-          {"lat": 36.1567, "lon": -115.1012, "name": "I-15 Ramp"},
-          {"lat": 36.1489, "lon": -115.0834, "name": "US-95 Junction"},
-          {"lat": 36.1401, "lon": -115.0645, "name": "Eastern Ave"},
-          {"lat": 36.1984, "lon": -115.0356, "name": "Delivery Zone"}
+          {"lat": 36.0840, "lon": -115.1537, "name": "McCarran Logistics Depot"},
+          {"lat": 36.1012, "lon": -115.1820, "name": "I-15 Northbound Ramp"},
+          {"lat": 36.1310, "lon": -115.1780, "name": "I-15 Express Lanes"},
+          {"lat": 36.1620, "lon": -115.1620, "name": "I-15 / US-95 Spaghetti Bowl"},
+          {"lat": 36.1699, "lon": -115.1398, "name": "Downtown Terminal"}
         ],
-        "segment_temps_f": [99, 97, 96, 97, 95, 94],
-        "avg_temp_f": 96.3,
-        "shade_pct": 28,
+        "segment_temps_f": [98.0, 96.5, 95.8, 96.0, 94.5],
+        "avg_temp_f": 96.2,
+        "shade_pct": 28.0,
         "solar_irradiance": 730
       }
     }
@@ -139,43 +140,59 @@
     "center": [32.7767, -96.7970],
     "routes": {
       "Route_A_Downtown": {
-        "name": "Route A — Downtown Dallas",
-        "description": "Through downtown Dallas core — dense urban heat",
-        "distance_miles": 7.1,
-        "duration_minutes": 31,
-        "color": "#f97316",
+        "name": "Route A — Downtown Commerce / Elm Corridor",
+        "description": "Dense downtown street grid with high urban heat island concentration",
+        "distance_miles": 7.3,
+        "duration_minutes": 33,
+        "color": "#ef4444",
         "risk_level": "High",
         "waypoints": [
-          {"lat": 32.7767, "lon": -96.7970, "name": "Distribution Center"},
-          {"lat": 32.7812, "lon": -96.7923, "name": "Main St"},
-          {"lat": 32.7856, "lon": -96.7867, "name": "Commerce St"},
-          {"lat": 32.7901, "lon": -96.7812, "name": "Elm St"},
-          {"lat": 32.7945, "lon": -96.7756, "name": "Pacific Ave"},
-          {"lat": 32.7984, "lon": -96.0356, "name": "Delivery Zone"}
+          {"lat": 32.7485, "lon": -96.8250, "name": "South Dallas Freight Terminal"},
+          {"lat": 32.7650, "lon": -96.8120, "name": "S Riverfront Blvd"},
+          {"lat": 32.7767, "lon": -96.7970, "name": "Downtown Main / Elm Grid"},
+          {"lat": 32.7910, "lon": -96.7880, "name": "Deep Ellum Transit Link"},
+          {"lat": 32.8120, "lon": -96.7750, "name": "North Central Depot"}
         ],
-        "segment_temps_f": [101, 103, 104, 102, 101, 99],
-        "avg_temp_f": 101.7,
-        "shade_pct": 14,
-        "solar_irradiance": 860
+        "segment_temps_f": [100.5, 102.8, 104.0, 102.5, 100.2],
+        "avg_temp_f": 102.0,
+        "shade_pct": 13.0,
+        "solar_irradiance": 870
       },
-      "Route_C_Highway": {
-        "name": "Route C — I-30 Highway",
-        "description": "Via I-30 — higher speed, open highway, less urban heat",
-        "distance_miles": 8.9,
-        "duration_minutes": 26,
-        "color": "#22c55e",
+      "Route_B_Mixed": {
+        "name": "Route B — Oak Lawn / Maple Ave Arterial",
+        "description": "Arterial roadway with mixed residential shade buffer",
+        "distance_miles": 8.0,
+        "duration_minutes": 29,
+        "color": "#f97316",
         "risk_level": "Moderate",
         "waypoints": [
-          {"lat": 32.7767, "lon": -96.7970, "name": "Distribution Center"},
-          {"lat": 32.7712, "lon": -96.8123, "name": "I-30 On-ramp"},
-          {"lat": 32.7645, "lon": -96.8289, "name": "I-30 West"},
-          {"lat": 32.7578, "lon": -96.8445, "name": "I-30 Loop"},
-          {"lat": 32.7984, "lon": -96.0356, "name": "Delivery Zone"}
+          {"lat": 32.7485, "lon": -96.8250, "name": "South Dallas Freight Terminal"},
+          {"lat": 32.7720, "lon": -96.8290, "name": "Industrial Blvd North"},
+          {"lat": 32.7950, "lon": -96.8150, "name": "Maple Ave & Oak Lawn"},
+          {"lat": 32.8120, "lon": -96.7750, "name": "North Central Depot"}
         ],
-        "segment_temps_f": [93, 91, 92, 90, 91],
-        "avg_temp_f": 91.4,
-        "shade_pct": 35,
-        "solar_irradiance": 690
+        "segment_temps_f": [97.5, 98.0, 97.2, 96.0],
+        "avg_temp_f": 97.2,
+        "shade_pct": 22.0,
+        "solar_irradiance": 780
+      },
+      "Route_C_Highway": {
+        "name": "Route C — I-35E / Dallas North Tollway Bypass",
+        "description": "Elevated highway route with high velocity convection",
+        "distance_miles": 9.4,
+        "duration_minutes": 23,
+        "color": "#22c55e",
+        "risk_level": "Low",
+        "waypoints": [
+          {"lat": 32.7485, "lon": -96.8250, "name": "South Dallas Freight Terminal"},
+          {"lat": 32.7680, "lon": -96.8320, "name": "I-35E Stemmons Freeway"},
+          {"lat": 32.7950, "lon": -96.8280, "name": "I-35E & DNT Interchange"},
+          {"lat": 32.8120, "lon": -96.7750, "name": "North Central Depot"}
+        ],
+        "segment_temps_f": [92.0, 90.5, 91.2, 89.8],
+        "avg_temp_f": 90.9,
+        "shade_pct": 36.0,
+        "solar_irradiance": 680
       }
     }
   },
@@ -185,42 +202,58 @@
     "center": [29.7604, -95.3698],
     "routes": {
       "Route_A_Downtown": {
-        "name": "Route A — Houston Downtown",
-        "description": "Downtown Houston surface streets — high humidity amplifies heat stress",
-        "distance_miles": 7.4,
+        "name": "Route A — Houston Central Business District",
+        "description": "High humidity surface street grid with concentrated asphalt heat retention",
+        "distance_miles": 7.6,
         "duration_minutes": 35,
-        "color": "#f97316",
+        "color": "#ef4444",
         "risk_level": "High",
         "waypoints": [
-          {"lat": 29.7604, "lon": -95.3698, "name": "Distribution Hub"},
-          {"lat": 29.7645, "lon": -95.3634, "name": "Main St"},
-          {"lat": 29.7689, "lon": -95.3567, "name": "Texas Ave"},
-          {"lat": 29.7734, "lon": -95.3501, "name": "Lamar St"},
-          {"lat": 29.7984, "lon": -95.0356, "name": "Delivery Zone"}
+          {"lat": 29.7280, "lon": -95.3850, "name": "Southwest Freight Depot"},
+          {"lat": 29.7450, "lon": -95.3720, "name": "Midtown Transit Corridor"},
+          {"lat": 29.7604, "lon": -95.3698, "name": "Main & Texas Ave Grid"},
+          {"lat": 29.7820, "lon": -95.3580, "name": "North Houston Logistics Hub"}
         ],
-        "segment_temps_f": [97, 99, 100, 98, 97],
-        "avg_temp_f": 98.2,
-        "shade_pct": 16,
-        "solar_irradiance": 810
+        "segment_temps_f": [98.5, 100.2, 99.0, 97.5],
+        "avg_temp_f": 98.8,
+        "shade_pct": 14.5,
+        "solar_irradiance": 820
       },
-      "Route_C_Highway": {
-        "name": "Route C — I-610 Loop",
-        "description": "Via I-610 Loop highway — better airflow, less radiated heat",
-        "distance_miles": 9.6,
-        "duration_minutes": 28,
-        "color": "#22c55e",
+      "Route_B_Mixed": {
+        "name": "Route B — Montrose / Heights Arterial",
+        "description": "Tree-lined urban arterial corridor with partial natural canopy",
+        "distance_miles": 8.4,
+        "duration_minutes": 30,
+        "color": "#f97316",
         "risk_level": "Moderate",
         "waypoints": [
-          {"lat": 29.7604, "lon": -95.3698, "name": "Distribution Hub"},
-          {"lat": 29.7534, "lon": -95.3834, "name": "I-610 On-ramp"},
-          {"lat": 29.7456, "lon": -95.3967, "name": "I-610 South"},
-          {"lat": 29.7378, "lon": -95.4089, "name": "I-610 Southwest"},
-          {"lat": 29.7984, "lon": -95.0356, "name": "Delivery Zone"}
+          {"lat": 29.7280, "lon": -95.3850, "name": "Southwest Freight Depot"},
+          {"lat": 29.7450, "lon": -95.3920, "name": "Montrose Blvd North"},
+          {"lat": 29.7680, "lon": -95.3950, "name": "Heights Blvd Crossing"},
+          {"lat": 29.7820, "lon": -95.3580, "name": "North Houston Logistics Hub"}
         ],
-        "segment_temps_f": [90, 88, 89, 87, 88],
-        "avg_temp_f": 88.4,
-        "shade_pct": 29,
-        "solar_irradiance": 710
+        "segment_temps_f": [94.0, 94.8, 93.5, 92.5],
+        "avg_temp_f": 93.7,
+        "shade_pct": 24.0,
+        "solar_irradiance": 750
+      },
+      "Route_C_Highway": {
+        "name": "Route C — I-610 West Loop Expressway",
+        "description": "Freeway beltway routing with continuous airflow and lower localized surface temperatures",
+        "distance_miles": 10.1,
+        "duration_minutes": 25,
+        "color": "#22c55e",
+        "risk_level": "Low",
+        "waypoints": [
+          {"lat": 29.7280, "lon": -95.3850, "name": "Southwest Freight Depot"},
+          {"lat": 29.7280, "lon": -95.4520, "name": "I-610 West Loop South"},
+          {"lat": 29.7620, "lon": -95.4550, "name": "I-610 Galleria Section"},
+          {"lat": 29.7820, "lon": -95.3580, "name": "North Houston Logistics Hub"}
+        ],
+        "segment_temps_f": [89.5, 88.0, 88.5, 87.2],
+        "avg_temp_f": 88.3,
+        "shade_pct": 31.0,
+        "solar_irradiance": 690
       }
     }
   }

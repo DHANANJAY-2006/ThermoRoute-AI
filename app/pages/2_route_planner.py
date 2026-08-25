@@ -63,7 +63,7 @@ with open(os.path.join(os.path.dirname(__file__), "../../data/ev_specs.json"), e
     ev_specs = json.load(f)
 
 st.markdown("## Thermal Route Engine")
-st.caption(f"Spatial microclimate evaluation via FortyGuard Temperature API® · System Mode: {client.mode}")
+st.caption("Spatial microclimate evaluation via FortyGuard Temperature API® · 2.0m Elevation Telemetry")
 st.markdown("---")
 
 # Controls
@@ -81,7 +81,7 @@ with c2:
 with c3:
     fleet_size = st.number_input("Fleet Operational Scale (Units)", min_value=1, max_value=250000, value=500, step=25)
 
-# Calculate scores
+# Calculate scores safely
 with st.spinner("Executing spatial corridor thermal analysis..."):
     result = score_routes(city_key, vehicle_key, client)
 
@@ -91,11 +91,9 @@ solar = result.get("solar_irradiance_wm2", 800)
 satellite = result.get("satellite", {})
 env_data = result.get("env_params", {})
 
-best_route = min(routes, key=lambda r: r["avg_temp_f"])
-worst_route = max(routes, key=lambda r: r["avg_temp_f"])
-best_cost = bm.annual_degradation_cost(best_route["effective_temp_f"], vehicle_key, solar)
-worst_cost = bm.annual_degradation_cost(worst_route["effective_temp_f"], vehicle_key, solar)
-savings_per_van = max(0.0, worst_cost["heat_annual_cost_usd"] - best_cost["heat_annual_cost_usd"])
+best_route = min(routes, key=lambda r: r["annual_cost_usd"])
+worst_route = max(routes, key=lambda r: r["annual_cost_usd"])
+savings_per_van = max(0.0, worst_route["annual_cost_usd"] - best_route["annual_cost_usd"])
 fleet_savings = savings_per_van * fleet_size
 
 # Top Summary Strip
@@ -103,22 +101,22 @@ s1, s2, s3, s4 = st.columns(4)
 with s1:
     st.metric(
         label="High-Stress Corridor (Worst)",
-        value=f"{worst_route['avg_temp_f']:.0f}°F",
-        delta=f"${worst_cost['heat_annual_cost_usd']:,.0f}/unit/yr",
+        value=f"{worst_route['avg_temp_f']:.1f}°F",
+        delta=f"${worst_route['annual_cost_usd']:,.0f}/unit/yr",
         delta_color="inverse"
     )
 with s2:
     st.metric(
         label="Thermally Optimal Route (Best)",
-        value=f"{best_route['avg_temp_f']:.0f}°F",
-        delta=f"${best_cost['heat_annual_cost_usd']:,.0f}/unit/yr",
+        value=f"{best_route['avg_temp_f']:.1f}°F",
+        delta=f"${best_route['annual_cost_usd']:,.0f}/unit/yr",
         delta_color="normal"
     )
 with s3:
     st.metric(
         label="Unit Capital Preservation",
         value=f"${savings_per_van:,.0f}/yr",
-        delta=f"-{round(savings_per_van / worst_cost['heat_annual_cost_usd'] * 100, 1) if worst_cost['heat_annual_cost_usd'] > 0 else 0}% wear",
+        delta=f"-{round(savings_per_van / worst_route['annual_cost_usd'] * 100, 1) if worst_route['annual_cost_usd'] > 0 else 0}% wear",
         delta_color="normal"
     )
 with s4:
@@ -138,9 +136,12 @@ st.caption("Roadway segments colored by thermal exposure. FortyGuard Temperature
 m = folium.Map(location=city_center, zoom_start=12, tiles="CartoDB dark_matter")
 
 for route in routes:
-    latlons = [[wp["lat"], wp["lon"]] for wp in route["waypoints"]]
-    color = route["color"]
-    is_rec = (route == best_route)
+    waypoints = route.get("waypoints", [])
+    if not waypoints:
+        continue
+    latlons = [[wp["lat"], wp["lon"]] for wp in waypoints]
+    color = route.get("color", "#38bdf8")
+    is_rec = (route["name"] == best_route["name"])
     weight = 5 if is_rec else 3
     dash = None if is_rec else "6 4"
 
@@ -150,28 +151,29 @@ for route in routes:
         weight=weight,
         opacity=0.85,
         dash_array=dash,
-        tooltip=f"{route['name']} | Average: {route['avg_temp_f']:.0f}°F"
+        tooltip=f"{route['name']} | Average: {route['avg_temp_f']:.1f}°F"
     ).add_to(m)
 
-    for i, (wp, temp) in enumerate(zip(route["waypoints"], route.get("segment_temps", []))):
-        if i % 3 == 0:
+    for i, (wp, temp) in enumerate(zip(waypoints, route.get("segment_temps", []))):
+        if i % 2 == 0:
             folium.CircleMarker(
                 [wp["lat"], wp["lon"]],
                 radius=5,
                 color=color,
                 fill=True,
                 fill_color=color,
-                fill_opacity=0.8,
-                tooltip=f"{wp['name']}: {temp:.0f}°F"
+                fill_opacity=0.85,
+                tooltip=f"{wp['name']}: {temp:.1f}°F"
             ).add_to(m)
 
 # Origin / Destination
-start_pt = routes[0]["waypoints"][0]
-end_pt = routes[0]["waypoints"][-1]
-folium.Marker([start_pt["lat"], start_pt["lon"]], popup="Logistics Hub / Depot",
-              icon=folium.Icon(color="blue", icon="info-sign")).add_to(m)
-folium.Marker([end_pt["lat"], end_pt["lon"]], popup="Delivery Delivery Corridor",
-              icon=folium.Icon(color="red", icon="ok-sign")).add_to(m)
+if routes and routes[0].get("waypoints"):
+    start_pt = routes[0]["waypoints"][0]
+    end_pt = routes[0]["waypoints"][-1]
+    folium.Marker([start_pt["lat"], start_pt["lon"]], popup="Logistics Hub / Depot",
+                  icon=folium.Icon(color="blue", icon="info-sign")).add_to(m)
+    folium.Marker([end_pt["lat"], end_pt["lon"]], popup="Target Delivery Zone",
+                  icon=folium.Icon(color="red", icon="ok-sign")).add_to(m)
 
 st_folium(m, width="100%", height=460)
 
@@ -180,9 +182,8 @@ st.markdown("### Candidate Corridor Assessment")
 r_cols = st.columns(len(routes))
 
 for col, route in zip(r_cols, routes):
-    rc = bm.annual_degradation_cost(route["effective_temp_f"], vehicle_key, solar)
-    is_rec = (route == best_route)
-    status_color = route["color"]
+    is_rec = (route["name"] == best_route["name"])
+    status_color = route.get("color", "#38bdf8")
     
     with col:
         st.markdown(f"""
@@ -192,7 +193,7 @@ for col, route in zip(r_cols, routes):
             {'<span class="badge-rec">RECOMMENDED</span>' if is_rec else ''}
           </div>
           <div style="font-family:'JetBrains Mono', monospace; font-size:1.8rem; font-weight:700; color:{status_color}; margin: 4px 0;">
-            {route['avg_temp_f']:.0f}°F
+            {route['avg_temp_f']:.1f}°F
           </div>
           <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">
             Distance: {route['distance_miles']} mi · Transit: {route['duration_minutes']} min<br>
@@ -200,10 +201,10 @@ for col, route in zip(r_cols, routes):
           </p>
           <div style="border-top:1px solid #1e293b; padding-top:8px;">
             <div style="font-family:'JetBrains Mono', monospace; font-size:0.85rem; color:#38bdf8; font-weight:600;">
-              {rc['degradation_factor']:.2f}x Degradation Rate
+              {route['degradation_factor']:.2f}x Degradation Rate
             </div>
             <div style="font-size:0.8rem; color:#94a3b8; margin-top:2px;">
-              Annual Pack Cost: ${rc['heat_annual_cost_usd']:,.0f}/unit
+              Annual Pack Cost: ${route['annual_cost_usd']:,.0f}/unit
             </div>
           </div>
         </div>

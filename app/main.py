@@ -111,34 +111,30 @@ st.markdown("""
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown('<div class="status-badge">THERMOROUTE AI // v1.0</div>', unsafe_allow_html=True)
-    st.markdown("### Fleet Intelligence")
-    st.caption("FortyGuard Temperature API® Integration")
+    st.markdown("### Fleet Telemetry")
+    st.caption("FortyGuard Temperature API® Enterprise Suite")
     st.markdown("---")
-    
-    st.markdown("**Navigation Modules**")
-    st.page_link("main.py", label="System Overview")
-    st.page_link("pages/1_fleet_dashboard.py", label="Fleet Risk Monitor")
-    st.page_link("pages/2_route_planner.py", label="Thermal Route Engine")
-    st.page_link("pages/3_battery_savings.py", label="Financial & ROI Analysis")
-    st.page_link("pages/4_forecast_planner.py", label="12-Hour Shift Planner")
-    st.page_link("pages/5_executive_report.py", label="Executive Risk Brief")
-    
+    st.markdown("""
+    **Operational Parameters**
+    - Elevation: 2.0 Meters AGL
+    - Model: Arrhenius Degradation
+    - Coverage: US Metro Logistics Hubs
+    """)
     st.markdown("---")
     st.caption("FortyGuard Global AI Hackathon '26")
     st.caption("Track 03: Industrial & Enterprise")
-    st.caption("Geographic Scope: United States")
 
 # ── Hero Section ──────────────────────────────────────────────────────────────
 st.markdown("""
-<div style="padding: 24px 0 20px 0;">
-  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+<div style="padding: 18px 0 16px 0;">
+  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
     <span class="status-badge">TRACK 03: INDUSTRIAL & ENTERPRISE</span>
     <span class="system-pill">HYPERLOCAL THERMAL INTELLIGENCE</span>
   </div>
-  <h1 style="font-size: 2.75rem; margin: 0 0 12px 0;">
+  <h1 style="font-size: 2.75rem; margin: 0 0 10px 0;">
     ThermoRoute AI
   </h1>
-  <p style="font-size: 1.15rem; color: #94a3b8; max-width: 800px; margin: 0;">
+  <p style="font-size: 1.15rem; color: #94a3b8; max-width: 820px; margin: 0;">
     Autonomous thermal degradation management for commercial EV fleets.
     Translating 2-meter street-level temperature telemetry into battery lifespan extension and verified capital expenditure savings.
   </p>
@@ -151,30 +147,30 @@ st.markdown("---")
 c1, c2, c3, c4 = st.columns(4)
 with c1:
     st.metric(
-        label="Primary Test Market (Phoenix)",
-        value="112°F",
-        delta="Extreme Exposure",
+        label="Primary Test Corridor (Phoenix)",
+        value="111.4°F",
+        delta="Urban Core Peak Exposure",
         delta_color="inverse"
     )
 with c2:
     st.metric(
-        label="Peak Degradation Rate",
+        label="Electrochemical Aging Rate",
         value="3.85x",
-        delta="+285% over nominal",
+        delta="+285% over nominal baseline",
         delta_color="inverse"
     )
 with c3:
     st.metric(
-        label="Annual Savings (Per Van)",
+        label="Unit CapEx Savings",
         value="$8,379",
-        delta="Highway vs Urban Core",
+        delta="Highway vs Surface Grid",
         delta_color="normal"
     )
 with c4:
     st.metric(
         label="5-Year Fleet Value (500 Vans)",
         value="$20.08M",
-        delta="Total Net Benefit",
+        delta="Net Financial Benefit",
         delta_color="normal"
     )
 
@@ -192,7 +188,7 @@ with col_left:
         Neither parameter reflects the thermodynamic cost of high-stress urban heat corridors on heavy commercial lithium-ion packs.
       </p>
       <p>
-        At 112°F ambient surface temperatures in major logistics hubs such as Phoenix, accelerated chemical degradation (Arrhenius kinetics) increases battery capacity loss by nearly <strong>4x</strong> compared to baseline operating conditions.
+        At 111.4°F ambient surface temperatures in major logistics hubs such as Phoenix, accelerated chemical degradation (Arrhenius kinetics) increases battery capacity loss by nearly <strong>4x</strong> compared to baseline operating conditions.
       </p>
       <p style="margin-bottom:0;">
         Operating an electric delivery vehicle through unshaded downtown corridors imposes up to <strong>$13,471 per vehicle per year</strong> in premature battery depreciation.
@@ -281,18 +277,6 @@ with ep6:
       <p style="font-size:0.75rem; margin-top:8px; margin-bottom:0;">Unified async task polling lifecycle</p>
     </div>
     """, unsafe_allow_html=True)
-
-# ── Module Launchpad ──────────────────────────────────────────────────────────
-st.markdown("---")
-st.markdown("### System Modules")
-
-m1, m2, m3 = st.columns(3)
-with m1:
-    st.page_link("pages/1_fleet_dashboard.py", label="Open Fleet Risk Monitor →", use_container_width=True)
-with m2:
-    st.page_link("pages/2_route_planner.py", label="Open Thermal Route Engine →", use_container_width=True)
-with m3:
-    st.page_link("pages/3_battery_savings.py", label="Open Financial & ROI Analysis →", use_container_width=True)
 
 st.markdown("""
 <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #1e293b;">

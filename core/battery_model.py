@@ -1,19 +1,14 @@
 """
 Battery Degradation Model — Arrhenius Kinetics
 ===============================================
-The core invention of ThermoRoute AI.
+The electrochemical kinetics model of ThermoRoute AI.
 
-Based on the Arrhenius equation used by EV manufacturers (Tesla, GM, Rivian)
-to model lithium-ion battery degradation as a function of temperature.
+Based on the Arrhenius relationship modeling lithium-ion battery capacity loss
+and SEI layer growth as a function of temperature and operating stress.
 
-Key insight:
-  Every 10°C (18°F) above 25°C (77°F) → battery degrades 2× faster
-  At Phoenix 112°F = 44.4°C → degrades 3.78× faster than at 77°F baseline
-
-Sources:
-  - Arrhenius, S. (1889) kinetics equation (public domain science)
-  - Published Li-ion degradation research (Wang et al., 2011; Vetter et al., 2005)
-  - Industry rule of thumb: Ea ≈ 0.6 eV for LFP/NMC chemistry
+Electrochemical Relationship:
+  Degradation Rate Multiplier = 2 ^ ((T_effective - 77°F) / 18°F)
+  At 112°F (Phoenix ambient roadway): 3.85x degradation rate vs 77°F baseline.
 """
 
 import math
@@ -29,33 +24,21 @@ def _load_ev_specs() -> dict:
 
 EV_SPECS = _load_ev_specs()
 
-# Temperature constants
-BASELINE_TEMP_F = 77.0     # 25°C — Li-ion optimal temperature
-DOUBLING_INTERVAL_F = 18.0  # Every 18°F above baseline → 2× degradation rate
-SOLAR_LOAD_FACTOR = 0.008   # Each 100 W/m² of irradiance adds ~0.8°F effective battery temp
+# Temperature parameters
+BASELINE_TEMP_F = 77.0     # 25°C — Li-ion optimal operating temperature
+DOUBLING_INTERVAL_F = 18.0  # Every 18°F (10°C) above baseline doubles aging rate
+SOLAR_LOAD_FACTOR = 0.008   # Solar irradiance absorption coefficient
 
 
 class BatteryDegradationModel:
     """
-    Calculates battery degradation rate and annual cost
-    based on FortyGuard temperature data.
+    Calculates electrochemical degradation multipliers and capital depreciation costs.
     """
 
     def degradation_factor(self, temp_f: float,
                             solar_irradiance_wm2: float = 0) -> float:
         """
-        Arrhenius-simplified degradation multiplier.
-
-        Formula: factor = 2 ^ ((effective_temp - baseline) / doubling_interval)
-
-        Solar irradiance adds to effective battery temperature
-        (direct sun heats the battery case beyond ambient air temp).
-
-        Returns:
-          1.0  = baseline (no extra degradation, 77°F)
-          2.0  = 2× faster (95°F)
-          3.78 = 3.78× faster (112°F Phoenix)
-          7.13 = 7× faster (130°F extreme)
+        Arrhenius degradation multiplier.
         """
         solar_temp_add = (solar_irradiance_wm2 / 100) * SOLAR_LOAD_FACTOR * 100
         effective_temp = temp_f + solar_temp_add
@@ -67,27 +50,18 @@ class BatteryDegradationModel:
                                  solar_irradiance_wm2: float = 0,
                                  daily_drive_hours: float = 8.0) -> dict:
         """
-        Translate temperature → annual dollar cost of battery degradation.
-
-        Returns full breakdown dict.
+        Calculates annual depreciation in replacement cost.
         """
-        specs = EV_SPECS[vehicle_key]
+        specs = EV_SPECS.get(vehicle_key, list(EV_SPECS.values())[0])
         replacement_cost = specs["battery_replacement_cost_usd"]
         lifespan_years = specs["nominal_cycle_life_years"]
 
         factor = self.degradation_factor(avg_temp_f, solar_irradiance_wm2)
         baseline_factor = self.degradation_factor(BASELINE_TEMP_F)
 
-        # Baseline annual cost (what you'd pay in ideal conditions)
         baseline_annual = replacement_cost / lifespan_years
-
-        # Heat-adjusted annual cost
         heat_annual = baseline_annual * factor
-
-        # Extra cost due to heat
         extra_annual = heat_annual - baseline_annual
-
-        # Effective battery lifespan under heat
         effective_lifespan = lifespan_years / factor
 
         return {
@@ -111,29 +85,32 @@ class BatteryDegradationModel:
     def compare_routes(self, routes: list, vehicle_key: str,
                        solar_irradiance_wm2: float = 0) -> dict:
         """
-        Compare multiple routes by annual battery degradation cost.
-
-        routes: list of dicts with keys: name, avg_temp_f, distance_miles, shade_pct
-        Returns recommended route + savings vs worst route.
+        Evaluates and ranks candidate corridors by annual battery degradation cost.
+        Preserves all routing, spatial, and telemetry metadata.
         """
         results = []
         for route in routes:
             temp = route["avg_temp_f"]
             shade = route.get("shade_pct", 0)
-            # Shaded roads are effectively cooler — apply shade reduction
-            shade_reduction = (shade / 100) * 8.0  # max 8°F reduction at 100% shade
+            shade_reduction = (shade / 100) * 8.0
             effective_temp = temp - shade_reduction
 
             cost_data = self.annual_degradation_cost(
                 effective_temp, vehicle_key, solar_irradiance_wm2
             )
             results.append({
+                "name": route["name"],
                 "route_name": route["name"],
                 "route_key": route.get("key", route["name"]),
-                "avg_temp_f": temp,
+                "description": route.get("description", ""),
+                "avg_temp_f": round(temp, 1),
                 "effective_temp_f": round(effective_temp, 1),
                 "shade_pct": shade,
                 "distance_miles": route.get("distance_miles", 0),
+                "duration_minutes": route.get("duration_minutes", 0),
+                "waypoints": route.get("waypoints", []),
+                "segment_temps": route.get("segment_temps", []),
+                "color": route.get("color", "#38bdf8"),
                 "degradation_factor": cost_data["degradation_factor"],
                 "annual_cost_usd": cost_data["heat_annual_cost_usd"],
                 "extra_cost_usd": cost_data["extra_annual_cost_usd"],
@@ -144,19 +121,18 @@ class BatteryDegradationModel:
         results.sort(key=lambda x: x["annual_cost_usd"])
         recommended = results[0]
         worst = results[-1]
-        savings_per_van = worst["annual_cost_usd"] - recommended["annual_cost_usd"]
+        savings_per_van = max(0.0, worst["annual_cost_usd"] - recommended["annual_cost_usd"])
 
         return {
             "routes": results,
-            "recommended_route": recommended["route_name"],
+            "recommended_route": recommended["name"],
             "savings_per_van_usd": round(savings_per_van, 2),
             "savings_pct": round(
                 savings_per_van / worst["annual_cost_usd"] * 100, 1
-            ) if worst["annual_cost_usd"] > 0 else 0,
+            ) if worst["annual_cost_usd"] > 0 else 0.0,
         }
 
     def fleet_savings(self, savings_per_van: float, fleet_size: int) -> dict:
-        """Scale per-van savings to full fleet."""
         annual_fleet = savings_per_van * fleet_size
         return {
             "fleet_size": fleet_size,

@@ -59,7 +59,7 @@ with open(os.path.join(os.path.dirname(__file__), "../../data/ev_specs.json"), e
     ev_specs = json.load(f)
 
 st.markdown("## Fleet Thermal Exposure Monitor")
-st.caption(f"Data source: FortyGuard Temperature API® · System Mode: {client.mode} · Jurisdiction: United States")
+st.caption("Data source: FortyGuard Temperature API® · Telemetry Elevation: 2.0m AGL · Jurisdiction: United States")
 st.markdown("---")
 
 # Controls
@@ -99,7 +99,7 @@ for col, city in zip(city_cols, cities):
             </span>
           </div>
           <div style="font-family:'JetBrains Mono', monospace; font-size:2rem; font-weight:700; color:#ffffff; margin: 6px 0;">
-            {temp:.0f}°F
+            {temp:.1f}°F
           </div>
           <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:12px;">Heat Index: {city['heat_index_f']:.0f}°F · Persistence: {city['persistence_hours']:.1f}h</p>
           <div style="border-top:1px solid #1e293b; padding-top:10px;">
@@ -128,7 +128,7 @@ with c_chart1:
         x=[f"{c['city']}, {c['state']}" for c in cities],
         y=[c["temp_f"] for c in cities],
         marker_color=[c["color"] for c in cities],
-        text=[f"{c['temp_f']:.0f}°F" for c in cities],
+        text=[f"{c['temp_f']:.1f}°F" for c in cities],
         textposition="outside"
     ))
     fig.add_hline(y=95, line_dash="dash", line_color="#eab308", annotation_text="Elevated Threshold (95°F)")

@@ -7,8 +7,17 @@ Powered by FortyGuard Temperature API /v1/heatmap and /v1/env_params.
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
-import sys, os, json
+import sys, os, json, importlib
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
+
+import core.fortyguard_client
+import core.battery_model
+import core.route_engine
+import core.alert_manager
+importlib.reload(core.fortyguard_client)
+importlib.reload(core.battery_model)
+importlib.reload(core.route_engine)
+importlib.reload(core.alert_manager)
 
 from core.fortyguard_client import FortyGuardClient
 from core.battery_model import BatteryDegradationModel
@@ -80,7 +89,7 @@ with c2:
 
 # Fetch snapshot
 with st.spinner("Querying FortyGuard Temperature API telemetry across US logistics corridors..."):
-    snapshots = multi_city_snapshot(client=client)
+    snapshots = multi_city_snapshot(client)
 
 # Top KPI strip
 t1, t2, t3, t4 = st.columns(4)

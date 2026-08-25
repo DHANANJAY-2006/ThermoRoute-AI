@@ -8,8 +8,13 @@ import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
-import sys, os, json
+import sys, os, json, importlib
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
+
+import core.battery_model
+import core.cost_calculator
+importlib.reload(core.battery_model)
+importlib.reload(core.cost_calculator)
 
 from core.battery_model import BatteryDegradationModel
 from core.cost_calculator import fleet_roi_summary, benchmark_fleets, yearly_projection
@@ -88,8 +93,8 @@ with i6:
     saas_fee = float(st.number_input("Software Platform Fee ($/Unit/Month)", min_value=1.0, max_value=250.0, value=29.0, step=1.0))
 
 # Safe calculations
-hot_data = bm.annual_degradation_cost(avg_temp_f=float(hot_temp), vehicle_key=vehicle_key, solar_irradiance_wm2=float(solar), shade_pct=5.0)
-cool_data = bm.annual_degradation_cost(avg_temp_f=float(cool_temp), vehicle_key=vehicle_key, solar_irradiance_wm2=float(solar*0.75), shade_pct=30.0)
+hot_data = bm.annual_degradation_cost(hot_temp, vehicle_key, solar, 5.0)
+cool_data = bm.annual_degradation_cost(cool_temp, vehicle_key, solar * 0.75, 30.0)
 savings_per_van = max(0.0, hot_data["heat_annual_cost_usd"] - cool_data["heat_annual_cost_usd"])
 roi = fleet_roi_summary(savings_per_van, fleet_size, saas_fee)
 projection = yearly_projection(savings_per_van, fleet_size)
@@ -116,7 +121,7 @@ c_plot1, c_plot2 = st.columns(2)
 with c_plot1:
     st.markdown("#### Arrhenius Kinetics Degradation Curve")
     temps_range = list(range(60, 136, 2))
-    deg_factors = [bm.degradation_factor(float(t), float(solar)) for t in temps_range]
+    deg_factors = [bm.degradation_factor(t, solar) for t in temps_range]
     
     fig_arr = go.Figure()
     fig_arr.add_trace(go.Scatter(

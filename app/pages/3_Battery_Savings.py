@@ -1,7 +1,7 @@
 """
 Page 3 — Financial Modeling & CapEx ROI Analysis
-Financial modeling of thermal degradation mitigation.
-Quantifies capital expenditure avoidance, payback horizons, and multi-year projections.
+Comprehensive financial modeling of thermal operational mitigation.
+Quantifies battery asset depreciation, energy/AC surcharge, range overhead, payback horizons, and multi-year projections.
 """
 
 import streamlit as st
@@ -12,11 +12,14 @@ import sys, os, json, importlib
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 import core.battery_model
+import core.ev_energy_model
 import core.cost_calculator
 importlib.reload(core.battery_model)
+importlib.reload(core.ev_energy_model)
 importlib.reload(core.cost_calculator)
 
 from core.battery_model import BatteryDegradationModel
+from core.ev_energy_model import EVEnergyModel
 from core.cost_calculator import fleet_roi_summary, benchmark_fleets, yearly_projection
 
 st.set_page_config(
@@ -73,12 +76,13 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 bm = BatteryDegradationModel()
+em = EVEnergyModel()
 
 with open(os.path.join(os.path.dirname(__file__), "../../data/ev_specs.json"), encoding="utf-8") as f:
     ev_specs = json.load(f)
 
 st.markdown("## Financial Modeling & CapEx ROI Analysis")
-st.caption("Quantitative capital expenditure avoidance modeling based on Arrhenius cell degradation kinetics.")
+st.caption("Comprehensive 3-Component EV Cost Engine: Arrhenius Cell Degradation · Energy/AC Penalty · Range Overhead")
 st.markdown("---")
 
 # Simulation Parameters
@@ -103,20 +107,32 @@ with i5:
 with i6:
     saas_fee = float(st.number_input("Software Platform Fee ($/Unit/Month)", min_value=1.0, max_value=250.0, value=29.0, step=1.0))
 
-# Safe calculations
-hot_data = bm.annual_degradation_cost(hot_temp, vehicle_key, solar, 5.0)
-cool_data = bm.annual_degradation_cost(cool_temp, vehicle_key, solar * 0.75, 30.0)
-savings_per_van = max(0.0, hot_data["heat_annual_cost_usd"] - cool_data["heat_annual_cost_usd"])
-roi = fleet_roi_summary(savings_per_van, fleet_size, saas_fee)
-projection = yearly_projection(savings_per_van, fleet_size)
+# 3-Component Cost Calculations
+hot_deg = bm.annual_degradation_cost(hot_temp, vehicle_key, solar, 5.0)
+cool_deg = bm.annual_degradation_cost(cool_temp, vehicle_key, solar * 0.75, 30.0)
+
+hot_op = em.total_operational_cost_annual(hot_temp, vehicle_key)
+cool_op = em.total_operational_cost_annual(cool_temp, vehicle_key)
+
+hot_total_per_van = hot_deg["heat_annual_cost_usd"] + hot_op["annual_operational_penalty_usd"]
+cool_total_per_van = cool_deg["heat_annual_cost_usd"] + cool_op["annual_operational_penalty_usd"]
+
+deg_savings = max(0.0, hot_deg["heat_annual_cost_usd"] - cool_deg["heat_annual_cost_usd"])
+energy_savings = max(0.0, hot_op["annual_energy_penalty_usd"] - cool_op["annual_energy_penalty_usd"])
+range_savings = max(0.0, hot_op["annual_range_overhead_usd"] - cool_op["annual_range_overhead_usd"])
+
+total_savings_per_van = max(0.0, hot_total_per_van - cool_total_per_van)
+
+roi = fleet_roi_summary(total_savings_per_van, fleet_size, saas_fee)
+projection = yearly_projection(total_savings_per_van, fleet_size)
 
 st.markdown("---")
 
 # Executive Financial Summary
-st.markdown("### Executive Financial Summary")
+st.markdown("### Executive Financial Summary (3-Component Model)")
 m1, m2, m3, m4 = st.columns(4)
 with m1:
-    st.metric(label="Unit CapEx Savings", value=f"${savings_per_van:,.0f}/yr", delta="Annual Asset Preservation")
+    st.metric(label="Unit Total Annual Savings", value=f"${total_savings_per_van:,.0f}/yr", delta="Asset + Energy + Range")
 with m2:
     st.metric(label="Fleet Annual Gross Benefit", value=f"${roi['total_annual_savings_usd']:,.0f}/yr", delta=f"{fleet_size} Units Active")
 with m3:
@@ -130,30 +146,37 @@ st.markdown("---")
 c_plot1, c_plot2 = st.columns(2)
 
 with c_plot1:
-    st.markdown("#### Arrhenius Kinetics Degradation Curve")
-    temps_range = list(range(60, 136, 2))
-    deg_factors = [bm.degradation_factor(t, solar) for t in temps_range]
-    
-    fig_arr = go.Figure()
-    fig_arr.add_trace(go.Scatter(
-        x=temps_range, y=deg_factors,
-        mode="lines",
-        line=dict(color="#38bdf8", width=3),
-        name="Degradation Multiplier"
+    st.markdown("#### 3-Component Cost Stack: High-Stress vs. Optimized")
+    fig_comp = go.Figure()
+    fig_comp.add_trace(go.Bar(
+        name="Battery Degradation",
+        x=["High-Stress Corridor", "Optimized Corridor"],
+        y=[hot_deg["heat_annual_cost_usd"], cool_deg["heat_annual_cost_usd"]],
+        marker_color="#ef4444"
     ))
-    fig_arr.add_vline(x=hot_temp, line_color="#ef4444", line_dash="dash", annotation_text=f"High-Stress ({hot_temp:.1f}°F)")
-    fig_arr.add_vline(x=cool_temp, line_color="#22c55e", line_dash="dash", annotation_text=f"Optimized ({cool_temp:.1f}°F)")
-    fig_arr.add_vline(x=77, line_color="#64748b", line_dash="dot", annotation_text="Nominal (77°F)")
-    fig_arr.update_layout(
+    fig_comp.add_trace(go.Bar(
+        name="Energy & AC Surcharge",
+        x=["High-Stress Corridor", "Optimized Corridor"],
+        y=[hot_op["annual_energy_penalty_usd"], cool_op["annual_energy_penalty_usd"]],
+        marker_color="#f97316"
+    ))
+    fig_comp.add_trace(go.Bar(
+        name="Range Overhead & Charging",
+        x=["High-Stress Corridor", "Optimized Corridor"],
+        y=[hot_op["annual_range_overhead_usd"], cool_op["annual_range_overhead_usd"]],
+        marker_color="#eab308"
+    ))
+    fig_comp.update_layout(
+        barmode="stack",
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter", color="#94a3b8"),
-        xaxis=dict(title="Roadway Ambient Temperature (°F)", gridcolor="#1e293b"),
-        yaxis=dict(title="Degradation Factor (x)", gridcolor="#1e293b"),
+        yaxis=dict(title="Annual Cost per Van ($)", gridcolor="#1e293b"),
         height=340,
-        margin=dict(l=20, r=20, t=20, b=20)
+        margin=dict(l=20, r=20, t=20, b=20),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
-    st.plotly_chart(fig_arr, use_container_width=True)
+    st.plotly_chart(fig_comp, use_container_width=True)
 
 with c_plot2:
     st.markdown("#### 5-Year Cumulative Fleet Net Benefit")
@@ -167,7 +190,6 @@ with c_plot2:
     fig_proj.add_trace(go.Scatter(
         x=[f"Year {r['year']}" for r in projection],
         y=[r["cumulative_savings_usd"] for r in projection],
-        mode="lines+markers",
         name="Cumulative Net Benefit",
         line=dict(color="#38bdf8", width=3),
         yaxis="y2"
@@ -192,12 +214,12 @@ st.caption("Projected industry impact across active commercial EV deployment pip
 benchmarks = benchmark_fleets()
 b_rows = []
 for b in benchmarks:
-    total_ann = savings_per_van * b["ev_vans"]
+    total_ann = total_savings_per_van * b["ev_vans"]
     b_rows.append({
         "Fleet Enterprise": b["operator"],
         "Active / Committed EV Fleet": f"{b['ev_vans']:,} Units",
         "Primary Chassis": b["vehicle"],
-        "Annual CapEx Avoidance": f"${total_ann:,.0f}",
+        "Annual Cost Avoidance": f"${total_ann:,.0f}",
         "5-Year Value Created": f"${total_ann * 5:,.0f}"
     })
 

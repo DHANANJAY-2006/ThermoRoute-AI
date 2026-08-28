@@ -9,12 +9,20 @@ import folium
 from streamlit_folium import st_folium
 import plotly.graph_objects as go
 import pandas as pd
-import sys, os, json
+import sys, os, json, importlib
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
+
+import core.battery_model
+import core.ev_energy_model
+import core.route_engine
+importlib.reload(core.battery_model)
+importlib.reload(core.ev_energy_model)
+importlib.reload(core.route_engine)
 
 from core.fortyguard_client import FortyGuardClient
 from core.route_engine import score_routes, get_city_key, CITY_DATA
 from core.battery_model import BatteryDegradationModel
+from core.ev_energy_model import EVEnergyModel
 
 st.set_page_config(
     page_title="Thermal Route Engine — ThermoRoute AI",
@@ -81,6 +89,7 @@ with st.sidebar:
 
 client = FortyGuardClient()
 bm = BatteryDegradationModel()
+em = EVEnergyModel()
 
 with open(os.path.join(os.path.dirname(__file__), "../../data/ev_specs.json"), encoding="utf-8") as f:
     ev_specs = json.load(f)
@@ -133,28 +142,28 @@ with s1:
     st.metric(
         label="High-Stress Corridor (Worst)",
         value=f"{worst_route.get('avg_temp_f', 110.0):.1f}°F",
-        delta=f"${worst_cost_val:,.0f}/unit/yr",
+        delta=f"${worst_cost_val:,.0f}/unit/yr total",
         delta_color="inverse"
     )
 with s2:
     st.metric(
         label="Thermally Optimal Route (Best)",
         value=f"{best_route.get('avg_temp_f', 95.0):.1f}°F",
-        delta=f"${best_cost_val:,.0f}/unit/yr",
+        delta=f"${best_cost_val:,.0f}/unit/yr total",
         delta_color="normal"
     )
 with s3:
     st.metric(
-        label="Unit Capital Preservation",
+        label="Unit Operational Preservation",
         value=f"${savings_per_van:,.0f}/yr",
-        delta=f"-{round(savings_per_van / worst_cost_val * 100, 1) if worst_cost_val > 0 else 0}% wear",
+        delta=f"-{round(savings_per_van / worst_cost_val * 100, 1) if worst_cost_val > 0 else 0}% expense",
         delta_color="normal"
     )
 with s4:
     st.metric(
         label=f"Annual Fleet Value ({fleet_size} Units)",
         value=f"${fleet_savings:,.0f}/yr",
-        delta="CapEx Avoidance",
+        delta="Comprehensive ROI",
         delta_color="normal"
     )
 
@@ -162,30 +171,36 @@ st.markdown("---")
 
 # Spatial Map
 st.markdown("### Spatial Corridor Telemetry & Microclimate Map")
-st.caption("Roadway segments colored by thermal exposure. FortyGuard Temperature API 2-meter resolution.")
+st.caption("Real turn-by-turn road geometry colored by thermal exposure. FortyGuard Temperature API 2-meter resolution.")
 
 m = folium.Map(location=city_center, zoom_start=12, tiles="CartoDB dark_matter")
 
 for route in routes:
-    waypoints = route.get("waypoints", [])
-    if not waypoints:
+    # Use real turn-by-turn road geometry if available, else waypoints
+    road_geom = route.get("road_geometry", [])
+    if not road_geom:
+        waypoints = route.get("waypoints", [])
+        road_geom = [[wp["lat"], wp["lon"]] for wp in waypoints]
+    
+    if not road_geom:
         continue
-    latlons = [[wp["lat"], wp["lon"]] for wp in waypoints]
+
     color = route.get("color", "#38bdf8")
     is_rec = (route.get("name") == best_route.get("name"))
     weight = 5 if is_rec else 3
     dash = None if is_rec else "6 4"
 
     folium.PolyLine(
-        latlons,
+        road_geom,
         color=color,
         weight=weight,
-        opacity=0.85,
+        opacity=0.9,
         dash_array=dash,
-        tooltip=f"{route.get('name', 'Route')} | Average: {route.get('avg_temp_f', 100):.1f}°F"
+        tooltip=f"{route.get('name', 'Route')} | Avg: {route.get('avg_temp_f', 100):.1f}°F | Total: ${route.get('annual_cost_usd', 0):,.0f}/yr"
     ).add_to(m)
 
-    for i, (wp, temp) in enumerate(zip(waypoints, route.get("segment_temps", []))):
+    # Roadway waypoint markers
+    for i, (wp, temp) in enumerate(zip(route.get("waypoints", []), route.get("segment_temps", []))):
         if i % 2 == 0:
             folium.CircleMarker(
                 [wp["lat"], wp["lon"]],
@@ -209,7 +224,7 @@ if routes and routes[0].get("waypoints"):
 st_folium(m, width="100%", height=460)
 
 # Corridor Breakdown Cards
-st.markdown("### Candidate Corridor Assessment")
+st.markdown("### Candidate Corridor Assessment (3-Component Cost Model)")
 r_cols = st.columns(len(routes))
 
 for col, route in zip(r_cols, routes):
@@ -226,16 +241,26 @@ for col, route in zip(r_cols, routes):
           <div style="font-family:'JetBrains Mono', monospace; font-size:1.8rem; font-weight:700; color:{status_color}; margin: 4px 0;">
             {route.get('avg_temp_f', 100):.1f}°F
           </div>
-          <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">
+          <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px;">
             Distance: {route.get('distance_miles', 0)} mi · Transit: {route.get('duration_minutes', 0)} min<br>
-            Canopy Shade: {route.get('shade_pct', 0)}%
+            Effective Range: {route.get('effective_range_miles', 0)} mi ({route.get('range_reduction_pct', 0)}% heat loss)
           </p>
           <div style="border-top:1px solid #1e293b; padding-top:8px;">
-            <div style="font-family:'JetBrains Mono', monospace; font-size:0.85rem; color:#38bdf8; font-weight:600;">
-              {route.get('degradation_factor', 1.0):.2f}x Degradation Rate
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#94a3b8; margin-bottom:3px;">
+              <span>⚡ Battery Degradation:</span>
+              <span style="font-family:'JetBrains Mono', monospace; color:#f8fafc; font-weight:600;">${route.get('degradation_cost_usd', 0):,.0f}</span>
             </div>
-            <div style="font-size:0.8rem; color:#94a3b8; margin-top:2px;">
-              Annual Pack Cost: ${route.get('annual_cost_usd', 0):,.0f}/unit
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#94a3b8; margin-bottom:3px;">
+              <span>🔋 Energy & AC Surcharge:</span>
+              <span style="font-family:'JetBrains Mono', monospace; color:#f8fafc; font-weight:600;">${route.get('energy_penalty_usd', 0):,.0f}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#94a3b8; margin-bottom:6px;">
+              <span>⏱️ Range & Charging Overhead:</span>
+              <span style="font-family:'JetBrains Mono', monospace; color:#f8fafc; font-weight:600;">${route.get('range_overhead_usd', 0):,.0f}</span>
+            </div>
+            <div style="border-top:1px dashed #334155; padding-top:6px; display:flex; justify-content:space-between; font-family:'JetBrains Mono', monospace; font-size:0.95rem; color:#38bdf8; font-weight:700;">
+              <span>Total Annual / Unit:</span>
+              <span>${route.get('annual_cost_usd', 0):,.0f}</span>
             </div>
           </div>
         </div>

@@ -5,6 +5,8 @@
     "battery_kwh": 135,
     "battery_replacement_cost_usd": 28000,
     "nominal_cycle_life_years": 8,
+    "base_kwh_per_mile": 0.88,
+    "rated_range_miles": 150,
     "optimal_temp_f": 68,
     "max_safe_temp_f": 95,
     "critical_temp_f": 110
@@ -15,6 +17,8 @@
     "battery_kwh": 113,
     "battery_replacement_cost_usd": 22000,
     "nominal_cycle_life_years": 7,
+    "base_kwh_per_mile": 0.87,
+    "rated_range_miles": 130,
     "optimal_temp_f": 68,
     "max_safe_temp_f": 95,
     "critical_temp_f": 108
@@ -25,6 +29,8 @@
     "battery_kwh": 67,
     "battery_replacement_cost_usd": 14000,
     "nominal_cycle_life_years": 6,
+    "base_kwh_per_mile": 0.54,
+    "rated_range_miles": 126,
     "optimal_temp_f": 68,
     "max_safe_temp_f": 95,
     "critical_temp_f": 105
@@ -35,6 +41,8 @@
     "battery_kwh": 160,
     "battery_replacement_cost_usd": 32000,
     "nominal_cycle_life_years": 9,
+    "base_kwh_per_mile": 0.94,
+    "rated_range_miles": 170,
     "optimal_temp_f": 68,
     "max_safe_temp_f": 95,
     "critical_temp_f": 112

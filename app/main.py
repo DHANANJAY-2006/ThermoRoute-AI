@@ -270,13 +270,13 @@ st.markdown("""
     <div class="metric-delta delta-inverse">NMC/LFP SEI Growth</div>
   </div>
   <div class="metric-card">
-    <div class="metric-label">Unit CapEx Savings</div>
-    <div class="metric-value">$6,853</div>
-    <div class="metric-delta delta-normal">Highway vs Surface Grid</div>
+    <div class="metric-label">Unit Total Savings</div>
+    <div class="metric-value">$7,338</div>
+    <div class="metric-delta delta-normal">Asset + Energy + Range</div>
   </div>
   <div class="metric-card metric-card-highlight">
     <div class="metric-label">5-Year Fleet Value (500 Vans)</div>
-    <div class="metric-value metric-value-highlight">$16.26M</div>
+    <div class="metric-value metric-value-highlight">$17.47M</div>
     <div class="metric-delta delta-highlight">Net Financial Benefit</div>
   </div>
 </div>

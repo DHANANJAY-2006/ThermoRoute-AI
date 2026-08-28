@@ -7,8 +7,19 @@ Outputs clean executive PDF briefings for operations leadership.
 import streamlit as st
 from fpdf import FPDF
 from datetime import datetime
-import sys, os, json
+import sys, os, json, importlib
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
+
+import core.fortyguard_client
+import core.battery_model
+import core.ev_energy_model
+import core.route_engine
+import core.cost_calculator
+importlib.reload(core.fortyguard_client)
+importlib.reload(core.battery_model)
+importlib.reload(core.ev_energy_model)
+importlib.reload(core.route_engine)
+importlib.reload(core.cost_calculator)
 
 from core.fortyguard_client import FortyGuardClient
 from core.route_engine import score_routes, get_city_key, CITY_DATA
@@ -159,13 +170,13 @@ if st.button("Generate Executive Brief", type="primary", use_container_width=Tru
     | **Air Quality Index (AQI)** | {env.get('aqi', 42)} | FortyGuard /v1/env_params |
     """)
 
-    st.markdown("#### Corridor Economic Comparison")
+    st.markdown("#### Corridor Comprehensive Cost Comparison (3-Component Model)")
     st.markdown(f"""
-    | Transit Corridor | Mean Temperature | Degradation Rate | Annual Battery Depreciation |
-    | :--- | :--- | :--- | :--- |
-    | **{worst_route.get('name', 'Unmanaged')}** (Unmanaged Baseline) | {worst_route.get('avg_temp_f', 110):.1f}°F | {worst_route.get('degradation_factor', 3.8):.2f}x | ${worst_route.get('annual_cost_usd', 0):,.0f} / unit / yr |
-    | **{best_route.get('name', 'Optimized')}** (Thermally Managed) | {best_route.get('avg_temp_f', 95):.1f}°F | {best_route.get('degradation_factor', 2.0):.2f}x | ${best_route.get('annual_cost_usd', 0):,.0f} / unit / yr |
-    | **Net Annual Unit Benefit** | — | — | **+${savings_per_van:,.0f} / unit / yr** |
+    | Transit Corridor | Mean Temp | Battery Degradation | Energy & AC Surcharge | Range & Charging Overhead | Total Annual / Unit |
+    | :--- | :--- | :--- | :--- | :--- | :--- |
+    | **{worst_route.get('name', 'Unmanaged')}** (Unmanaged Baseline) | {worst_route.get('avg_temp_f', 110):.1f}°F | ${worst_route.get('degradation_cost_usd', 0):,.0f} | ${worst_route.get('energy_penalty_usd', 0):,.0f} | ${worst_route.get('range_overhead_usd', 0):,.0f} | **${worst_route.get('annual_cost_usd', 0):,.0f}** |
+    | **{best_route.get('name', 'Optimized')}** (Thermally Managed) | {best_route.get('avg_temp_f', 95):.1f}°F | ${best_route.get('degradation_cost_usd', 0):,.0f} | ${best_route.get('energy_penalty_usd', 0):,.0f} | ${best_route.get('range_overhead_usd', 0):,.0f} | **${best_route.get('annual_cost_usd', 0):,.0f}** |
+    | **Net Annual Unit Benefit** | — | — | — | — | **+${savings_per_van:,.0f} / unit / yr** |
     """)
 
     st.markdown("#### Autonomous AI Operational Synthesis")
@@ -193,7 +204,7 @@ if st.button("Generate Executive Brief", type="primary", use_container_width=Tru
     pdf.ln(4)
 
     pdf.set_font("Helvetica", "B", 13)
-    pdf.cell(0, 9, _pdf_clean("Executive Financial Summary"), ln=True)
+    pdf.cell(0, 9, _pdf_clean("Executive Financial Summary (3-Component Model)"), ln=True)
     pdf.set_font("Helvetica", "", 10)
     pdf_rows = [
         ("Annual Savings Per Vehicle", f"${savings_per_van:,.0f}"),

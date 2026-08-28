@@ -135,9 +135,14 @@ class BatteryDegradationModel:
 
     def compare_routes(self, routes: list, vehicle_key: str = "Rivian_EDV_500",
                        solar_irradiance_wm2: float = 0,
+                       energy_model=None,
                        *args, **kwargs) -> dict:
         """
-        Evaluates candidate corridors and computes comparative savings.
+        Evaluates candidate corridors using a full 3-component annual cost model:
+          1. Battery Arrhenius degradation cost (heat_annual_cost_usd)
+          2. Energy efficiency penalty (kWh/mile increase + AC load)
+          3. Operational range overhead (scheduling + charging penalty)
+        Routes are ranked by total_annual_cost_usd — lowest is recommended.
         """
         results = []
         for route in routes:
@@ -145,27 +150,54 @@ class BatteryDegradationModel:
             shade = float(route.get("shade_pct", 0.0))
             route_solar = float(route.get("solar_irradiance", solar_irradiance_wm2))
 
-            cost_data = self.annual_degradation_cost(
-                temp, vehicle_key, route_solar, shade
+            degrade_data = self.annual_degradation_cost(temp, vehicle_key, route_solar, shade)
+
+            # Energy + range overhead components
+            if energy_model is not None:
+                op_data = energy_model.total_operational_cost_annual(temp, vehicle_key)
+                energy_penalty_usd = op_data["annual_energy_penalty_usd"]
+                range_overhead_usd = op_data["annual_range_overhead_usd"]
+                effective_range_miles = op_data["effective_range_miles"]
+                range_reduction_pct = op_data["range_reduction_pct"]
+                efficiency_penalty_pct = op_data["efficiency_penalty_pct"]
+            else:
+                energy_penalty_usd = 0.0
+                range_overhead_usd = 0.0
+                effective_range_miles = 0.0
+                range_reduction_pct = 0.0
+                efficiency_penalty_pct = 0.0
+
+            total_annual_cost = (
+                degrade_data["heat_annual_cost_usd"]
+                + energy_penalty_usd
+                + range_overhead_usd
             )
+
             results.append({
                 "name": route.get("name", "Route"),
                 "route_name": route.get("name", "Route"),
                 "route_key": route.get("key", route.get("name", "Route")),
                 "description": route.get("description", ""),
                 "avg_temp_f": round(temp, 1),
-                "effective_temp_f": cost_data["effective_temp_f"],
+                "effective_temp_f": degrade_data["effective_temp_f"],
                 "shade_pct": shade,
                 "solar_irradiance": route_solar,
                 "distance_miles": route.get("distance_miles", 0.0),
                 "duration_minutes": route.get("duration_minutes", 0),
                 "waypoints": route.get("waypoints", []),
+                "road_geometry": route.get("road_geometry", []),
                 "segment_temps": route.get("segment_temps", []),
                 "color": route.get("color", "#38bdf8"),
-                "degradation_factor": cost_data["degradation_factor"],
-                "annual_cost_usd": cost_data["heat_annual_cost_usd"],
-                "extra_cost_usd": cost_data["extra_annual_cost_usd"],
-                "effective_lifespan_years": cost_data["effective_lifespan_years"],
+                "degradation_factor": degrade_data["degradation_factor"],
+                "degradation_cost_usd": degrade_data["heat_annual_cost_usd"],
+                "energy_penalty_usd": energy_penalty_usd,
+                "range_overhead_usd": range_overhead_usd,
+                "annual_cost_usd": total_annual_cost,
+                "effective_range_miles": effective_range_miles,
+                "range_reduction_pct": range_reduction_pct,
+                "efficiency_penalty_pct": efficiency_penalty_pct,
+                "extra_cost_usd": degrade_data["extra_annual_cost_usd"],
+                "effective_lifespan_years": degrade_data["effective_lifespan_years"],
                 "risk_level": self._risk_level(temp)
             })
 

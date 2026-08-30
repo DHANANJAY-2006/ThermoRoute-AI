@@ -109,11 +109,14 @@ class FortyGuardClient:
         self.api_key = os.getenv("FORTYGUARD_API_KEY", "")
         demo_env = os.getenv("DEMO_MODE", "true").lower()
         self.has_live_key = bool(self.api_key and self.api_key != "your_api_key_here" and demo_env != "true")
-
         self.headers = {
             "api-key": self.api_key,
             "Content-Type": "application/json"
         }
+
+    @property
+    def mode(self) -> str:
+        return "Live API Mode" if self.has_live_key else "Calibrated Telemetry (Demo Mode)"
 
     def _submit(self, endpoint: str, payload: dict) -> str:
         resp = requests.post(

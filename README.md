@@ -111,13 +111,11 @@ ThermoRoute-AI/
 │   ├── ev_specs.json               # Commercial EV chassis specifications
 │   └── electricity_prices.json     # US EIA commercial rate benchmarks
 ├── docs/
-│   ├── 01_executive_summary.md     # Executive Overview & Problem Statement
-│   ├── 02_technical_architecture.md# System Architecture & Pipeline Flow
-│   ├── 03_mathematical_methodology.md # Arrhenius Chemistry & EV Energy Equations
-│   ├── 04_fortyguard_api_integration.md # 6-Endpoint Implementation Guide
-│   ├── 05_financial_roi_impact.md  # Macro-Industry Validation & ROI Model
-│   ├── 06_submission_guide.md      # Hackathon Track 03 Submission Brief
-│   └── impact_statement.md         # Comprehensive Project Impact Statement
+│   ├── whitepaper.md               # Technical whitepaper & physical modeling
+│   ├── architecture.md             # System architecture & module specification
+│   ├── api_integration.md          # FortyGuard API endpoint documentation
+│   ├── submission_brief.md         # Hackathon submission metadata & form fields
+│   └── ThermoRoute_AI_Technical_Whitepaper.pdf # Formal PDF report
 ├── notebooks/
 │   └── api_demo.ipynb              # Jupyter API verification notebook
 ├── api_usage.md                    # Formal FortyGuard API documentation

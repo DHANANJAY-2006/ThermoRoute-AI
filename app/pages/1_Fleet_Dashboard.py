@@ -26,6 +26,7 @@ from core.alert_manager import evaluate
 
 st.set_page_config(
     page_title="Fleet Risk Monitor — ThermoRoute AI",
+    page_icon="assets/logo.png",
     layout="wide"
 )
 
@@ -63,14 +64,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
+    col_logo, col_txt = st.columns([1, 3])
+    with col_logo:
+        st.image("assets/logo.png", use_container_width=True)
+    with col_txt:
+        st.markdown("""
+        <div style="padding-top:2px;">
+          <div style="font-weight:800; font-size:1.1rem; letter-spacing:-0.02em; color:#ffffff; line-height:1.2;">
+            ThermoRoute <span style="color:#38bdf8; font-weight:700;">AI</span>
+          </div>
+          <div style="font-size:0.72rem; color:#64748b; margin-top:2px;">
+            FortyGuard API®
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
     st.markdown("""
-    <div style="padding: 4px 0 14px 0; border-bottom: 1px solid #172439; margin-bottom: 14px;">
-      <div style="font-weight:800; font-size:1.15rem; letter-spacing:-0.02em; color:#ffffff; margin-bottom:2px;">
-        ThermoRoute <span style="color:#38bdf8; font-weight:700;">AI</span>
-      </div>
-      <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">
-        FortyGuard Temperature API®
-      </div>
+    <div style="padding: 0 0 10px 0; border-bottom: 1px solid #172439; margin-bottom: 14px;">
       <div style="display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.65rem; color:#38bdf8; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); padding:2px 6px; border-radius:4px;">
         <span>TRACK 03 // ENTERPRISE</span>
       </div>

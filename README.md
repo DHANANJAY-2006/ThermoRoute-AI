@@ -1,12 +1,14 @@
-# ThermoRoute AI
-
-> **Hyperlocal Thermal Routing & Multi-Component EV Fleet Intelligence Engine**  
-> Powered by **FortyGuard Temperature API®** · FortyGuard Global AI Hackathon '26 · Track 03: Industrial & Enterprise
+<div align="center">
+  <img src="assets/logo.png" width="160" height="160" alt="ThermoRoute AI Logo" style="border-radius: 50%; box-shadow: 0 0 24px rgba(56,189,248,0.4);" />
+  <h1>ThermoRoute AI</h1>
+  <p><strong>Hyperlocal Thermal Routing & Multi-Component EV Fleet Intelligence Engine</strong></p>
+  <p>Powered by <strong>FortyGuard Temperature API®</strong> · FortyGuard Global AI Hackathon '26 · Track 03: Industrial & Enterprise</p>
 
 [![FortyGuard Temperature API](https://img.shields.io/badge/Powered%20by-FortyGuard%20Temperature%20API-1769b0?style=flat-square)](https://www.fortyguard.com)
 [![Challenge Track](https://img.shields.io/badge/Track-03%20Industrial%20%26%20Enterprise-1f7ae0?style=flat-square)](https://www.fortyguard.com/hackathon26)
 [![Python Version](https://img.shields.io/badge/Python-3.11%2B-3776ab?style=flat-square&logo=python)](https://python.org)
 [![Streamlit App](https://img.shields.io/badge/Streamlit-1.38-ff4b4b?style=flat-square&logo=streamlit)](https://streamlit.io)
+</div>
 
 ---
 

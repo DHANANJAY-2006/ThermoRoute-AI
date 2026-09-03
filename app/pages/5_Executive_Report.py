@@ -22,6 +22,7 @@ importlib.reload(core.route_engine)
 importlib.reload(core.cost_calculator)
 
 from core.fortyguard_client import FortyGuardClient
+from core.battery_model import BatteryDegradationModel
 from core.route_engine import score_routes, get_city_key, CITY_DATA
 from core.cost_calculator import fleet_roi_summary
 
